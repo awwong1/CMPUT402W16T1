@@ -6,7 +6,6 @@ Team 1 Members:
   * [Github](https://github.com/awwong1)
 * Kent Rasmussen
   * [Github](https://github.com/earthiverse)
-  * 
   
 ## Links
 * [Project Wiki](/wiki)
