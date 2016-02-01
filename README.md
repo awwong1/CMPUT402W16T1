@@ -8,7 +8,7 @@ Team 1 Members:
   * [Github](https://github.com/earthiverse)
   
 ## Links
-* [Project Wiki](/wiki)
+* [Project Wiki](https://github.com/awwong1/CMPUT402W16T1/wiki)
 * [Overall high level project description](/CMPUT402%20Project.pdf).
 
 ## High Level Goal
