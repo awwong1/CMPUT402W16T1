@@ -10,6 +10,7 @@ Team 1 Members:
 ## Links
 * [Project Wiki](https://github.com/cmput402w2016/CMPUT402W16T1/wiki)
 * [Overall high level project description](/CMPUT402%20Project.pdf).
+* [Cloudera Manager (Instance)](http://162.246.157.164:7180/)
 
 ## High Level Goal
 Team 1: Generation of Synthetic Traffic Data
