@@ -87,18 +87,22 @@
         </task>
       </task>
     </task>
-    <task id="23" name="API Integration" note="" work="288000" start="20160229T170000Z" end="20160311T170000Z" work-start="20160301T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="23" name="API Integration" note="" work="316800" start="20160229T170000Z" end="20160315T170000Z" work-start="20160301T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <predecessors>
         <predecessor id="1" predecessor-id="19" type="FS"/>
         <predecessor id="1" predecessor-id="8" type="FS"/>
       </predecessors>
       <task id="24" name="Create API Base (REST)" note="" work="115200" start="20160229T170000Z" end="20160304T170000Z" work-start="20160301T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="25" name="API Testing" note="" work="144000" start="20160304T170000Z" end="20160311T170000Z" work-start="20160307T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="25" name="Integrate to Query Data from Database" note="" work="57600" start="20160304T170000Z" end="20160308T170000Z" work-start="20160307T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
           <predecessor id="1" predecessor-id="24" type="FS"/>
         </predecessors>
       </task>
-      <task id="26" name="Integrate to Query Data from Database" note="" work="28800" start="20160229T170000Z" end="20160301T170000Z" work-start="20160301T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="26" name="API Testing" note="" work="144000" start="20160308T170000Z" end="20160315T170000Z" work-start="20160309T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="25" type="FS"/>
+        </predecessors>
+      </task>
     </task>
     <task id="27" name="Kiuwan Improvements" note="" work="259200" start="20160229T000000Z" end="20160310T170000Z" work-start="20160229T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <task id="28" name="Run Kiuwan Analysis" note="" work="57600" start="20160229T000000Z" end="20160301T170000Z" work-start="20160229T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
@@ -117,6 +121,43 @@
     </task>
   </tasks>
   <resource-groups/>
-  <resources/>
-  <allocations/>
+  <resources>
+    <resource id="1" name="Kent Rasmussen" short-name="Kent" type="1" units="0" email="" note="" std-rate="0"/>
+    <resource id="2" name="Alex Wong" short-name="Alex" type="1" units="0" email="" note="" std-rate="0"/>
+  </resources>
+  <allocations>
+    <allocation task-id="30" resource-id="1" units="50"/>
+    <allocation task-id="29" resource-id="1" units="50"/>
+    <allocation task-id="28" resource-id="1" units="100"/>
+    <allocation task-id="25" resource-id="1" units="100"/>
+    <allocation task-id="26" resource-id="1" units="50"/>
+    <allocation task-id="24" resource-id="1" units="50"/>
+    <allocation task-id="22" resource-id="1" units="100"/>
+    <allocation task-id="19" resource-id="1" units="50"/>
+    <allocation task-id="20" resource-id="1" units="50"/>
+    <allocation task-id="21" resource-id="1" units="50"/>
+    <allocation task-id="15" resource-id="1" units="50"/>
+    <allocation task-id="12" resource-id="1" units="50"/>
+    <allocation task-id="11" resource-id="1" units="50"/>
+    <allocation task-id="9" resource-id="1" units="50"/>
+    <allocation task-id="2" resource-id="1" units="100"/>
+    <allocation task-id="30" resource-id="2" units="50"/>
+    <allocation task-id="29" resource-id="2" units="50"/>
+    <allocation task-id="26" resource-id="2" units="50"/>
+    <allocation task-id="24" resource-id="2" units="50"/>
+    <allocation task-id="19" resource-id="2" units="50"/>
+    <allocation task-id="20" resource-id="2" units="50"/>
+    <allocation task-id="21" resource-id="2" units="50"/>
+    <allocation task-id="15" resource-id="2" units="50"/>
+    <allocation task-id="16" resource-id="2" units="100"/>
+    <allocation task-id="14" resource-id="2" units="100"/>
+    <allocation task-id="12" resource-id="2" units="50"/>
+    <allocation task-id="11" resource-id="2" units="50"/>
+    <allocation task-id="9" resource-id="2" units="50"/>
+    <allocation task-id="4" resource-id="2" units="100"/>
+    <allocation task-id="5" resource-id="2" units="100"/>
+    <allocation task-id="7" resource-id="2" units="100"/>
+    <allocation task-id="6" resource-id="2" units="100"/>
+    <allocation task-id="3" resource-id="2" units="100"/>
+  </allocations>
 </project>
