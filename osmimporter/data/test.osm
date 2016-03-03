@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="osmconvert 0.7T" timestamp="2016-02-27T00:25:02Z">
+    <bounds minlat="52.941" minlon="-114.529" maxlat="54.213" maxlon="-112.43"/>
+    <node id="4020679168" lat="54.1248586" lon="-112.5806042" version="1" timestamp="2016-02-22T23:18:31Z"
+          changeset="37379004" uid="307202" user="alester"/>
+    <way id="4648230" version="16" timestamp="2012-08-07T19:51:57Z" changeset="12650056" uid="239998" user="Sundance">
+        <nd ref="250784617"/>
+        <nd ref="250784618"/>
+        <nd ref="1856139388"/>
+        <nd ref="250784837"/>
+        <nd ref="250784846"/>
+        <nd ref="250784579"/>
+        <tag k="ref" v="02;20"/>
+        <tag k="name" v="02;20"/>
+        <tag k="aeroway" v="runway"/>
+        <tag k="surface" v="paved"/>
+    </way>
+</osm>
