@@ -25,7 +25,7 @@ public class App {
         System.out.println("Starting...");
 
         // HBase configuration stuff
-        Configuration hbconf =  HBaseConfiguration.create();
+        Configuration hbconf = HBaseConfiguration.create();
         System.out.println(hbconf);
         // Current stuff
         HashMap<Long, Node> nodes = new HashMap<Long, Node>();
@@ -48,11 +48,11 @@ public class App {
 
         try {
             // Read the XML
-            com.cmput402w2016.t1.osmimporter.Node node = null;
+            Node node = null;
             Way way = null;
 
             while (xmlr.hasNext()) {
-                if(xmlr.isStartElement()) {
+                if (xmlr.isStartElement()) {
                     // Start of Element
 
                     // Consider only the things we care about
@@ -98,7 +98,6 @@ public class App {
                             System.out.println("Turns out we needed it, lololol");
                             break;
                         }
-
                         // Get the id of the node
                         long node_id = Long.MIN_VALUE;
                         for (int i = 0; i < xmlr.getAttributeCount(); i++) {
@@ -106,26 +105,45 @@ public class App {
                             if (s.equals("ref")) {
                                 String value = xmlr.getAttributeValue(i);
                                 node_id = Long.parseLong(value);
-
                             }
                         }
-
                         // Add node to way
-                        if (node_id != Double.MIN_VALUE) {
+                        if (node_id != Long.MIN_VALUE) {
                             way.addNode(nodes.get(node_id));
                         }
 
+                    } else if (s1.equals("tag")) {
+                        if (node != null) {
+                            // we don't care about node tags
+                            xmlr.next();
+                            continue;
+                        }
+                        if (way == null) {
+                            System.out.println("Turns out we needed it, lololol");
+                            break;
+                        }
+                        String t_key = "";
+                        String t_val = "";
+                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
+                            String s = xmlr.getAttributeLocalName(i);
+                            if (s.equals("k")) {
+                                t_key = xmlr.getAttributeValue(i);
+                            } else if (s.equals("v")) {
+                                t_val = xmlr.getAttributeValue(i);
+                            } else {
+                                System.out.println("Invalid Attribute: " + i + "; " + xmlr.getAttributeValue(i));
+                            }
+                        }
+                        way.addTag(t_key, t_val);
                     }
                 } else if (xmlr.isEndElement()) {
                     // End of element
-
                     String s = xmlr.getLocalName();
-                    if (s.equals("node") && node != null) {// Add to map
+                    if (s.equals("node") && node != null) {
                         nodes.put(node.id, node);
                         // Reset node
                         node = null;
                     } else if (s.equals("way")) {
-                        // TODO: Determine the ways
                         ways.add(way);
                         // Reset way
                         way = null;
@@ -133,15 +151,12 @@ public class App {
                 }
                 xmlr.next();
             }
-
-            // DEBUG: Stats!
-            System.out.println("How many nodes did I read? This many, yo: " + nodes.size());
-            System.out.println("How many ways did I read? This many, yo: " + ways.size());
-
-            // TODO: For each nodes, add a node to the UMLs
         } catch (XMLStreamException e) {
             e.printStackTrace();
         }
+        // DEBUG: Stats!
+        System.out.println("How many nodes did I read? This many, yo: " + nodes.size());
+        System.out.println("How many ways did I read? This many, yo: " + ways.size());
 
         // Perform all the actions on the nodes
         HTable nodeTable = null;
@@ -161,12 +176,13 @@ public class App {
         final byte[] LON = Bytes.toBytes("lon");
         final byte[] OSM_ID = Bytes.toBytes("osm_id");
         final byte[] ND = Bytes.toBytes("nd");
+        final byte[] TAG = Bytes.toBytes("tag");
 
         List<Put> puts = new ArrayList<Put>();
         int counter = 0;
         int batch = 500;
-        while(it.hasNext()) {
-            HashMap.Entry pair = (HashMap.Entry)it.next();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry) it.next();
             Node node = (Node) pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
             p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.lat)));
@@ -209,14 +225,18 @@ public class App {
             System.out.println("Way HBase table failed to load. Exiting...");
             System.exit(1);
         }
-        for(Way way : ways) {
+        for (Way way : ways) {
             Put p = new Put(Bytes.toBytes(String.valueOf(way.id)));
             int index = 0;
             for (Node node : way.geohash_nodes) {
                 p.addColumn(ND, Bytes.toBytes(String.valueOf(index)), Bytes.toBytes(node.computeGeohash()));
                 index += 1;
             }
-            // todo: add way tags
+            Iterator it_w = way.way_tags.entrySet().iterator();
+            while (it_w.hasNext()) {
+                HashMap.Entry pair = (HashMap.Entry) it.next();
+                p.addColumn(TAG, Bytes.toBytes(String.valueOf(pair.getKey())), Bytes.toBytes(String.valueOf(pair.getValue())));
+            }
             puts.add(p);
             counter += 1;
             if (counter % batch == 0) {
