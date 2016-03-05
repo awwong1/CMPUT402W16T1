@@ -11,7 +11,13 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -19,6 +25,71 @@ import java.io.IOException;
  */
 public class App {
     public static void main(String[] args) {
+        XMLInputFactory xmlif = XMLInputFactory.newFactory();
+        XMLStreamReader xmlr = null;
+        try {
+            xmlr = xmlif.createXMLStreamReader(new FileInputStream("data/test.osm"));
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (xmlr == null) {
+            System.out.println("Document failed to load. Exiting...");
+            System.exit(0);
+        }
+
+        int eventType;
+        try {
+            while (xmlr.hasNext()) {
+                eventType = xmlr.getEventType();
+                System.out.println(getEventTypeString(eventType));
+                System.out.println(xmlr);
+                xmlr.next();
+            }
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Return the string representation of the StAX parser event.
+     *
+     * @param eventType
+     * @return
+     */
+    public static String getEventTypeString(int eventType) {
+        switch (eventType) {
+            case XMLEvent.START_ELEMENT:
+                return "START_ELEMENT";
+            case XMLEvent.END_ELEMENT:
+                return "END_ELEMENT";
+            case XMLEvent.PROCESSING_INSTRUCTION:
+                return "PROCESSING_INSTRUCTION";
+            case XMLEvent.CHARACTERS:
+                return "CHARACTERS";
+            case XMLEvent.COMMENT:
+                return "COMMENT";
+            case XMLEvent.START_DOCUMENT:
+                return "START_DOCUMENT";
+            case XMLEvent.END_DOCUMENT:
+                return "END_DOCUMENT";
+            case XMLEvent.ENTITY_REFERENCE:
+                return "ENTITY_REFERENCE";
+            case XMLEvent.ATTRIBUTE:
+                return "ATTRIBUTE";
+            case XMLEvent.DTD:
+                return "DTD";
+            case XMLEvent.CDATA:
+                return "CDATA";
+            case XMLEvent.SPACE:
+                return "SPACE";
+        }
+        return "UNKNOWN_EVENT_TYPE " + "," + eventType;
+    }
+
+    public static void old_main(String[] args) {
         File fXmlFile = new File("data/test.osm");
         // todo: make this use the buffered reader for the large osm xml files
         // File fXmlFile = new File("data/edmonton_canada.osm");
