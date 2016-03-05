@@ -1,5 +1,7 @@
 package com.cmput402w2016.t1.osmimporter;
 
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
