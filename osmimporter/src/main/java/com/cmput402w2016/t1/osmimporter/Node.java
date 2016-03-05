@@ -10,6 +10,7 @@ public class Node {
     long id;
     double lat;
     double lon;
+    String geohash = null;
 
     Node() {
         id = Long.MIN_VALUE;
@@ -34,7 +35,10 @@ public class Node {
     }
 
     public String computeGeohash() {
-        LatLong latLon = new LatLong(lat, lon);
-        return GeoHash.encodeHash(latLon);
+        if (geohash == null) {
+            LatLong latLon = new LatLong(lat, lon);
+            geohash = GeoHash.encodeHash(latLon);
+        }
+        return geohash;
     }
 }

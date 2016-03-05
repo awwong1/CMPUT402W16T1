@@ -10,7 +10,7 @@ public class Way {
     ArrayList<Node> geohash_nodes;
 
     Way() {
-        geohash_nodes = new ArrayList<>();
+        geohash_nodes = new ArrayList<Node>();
     }
 
     public void setId(String id) {
