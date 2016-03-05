@@ -2,11 +2,9 @@ package com.cmput402w2016.t1.osmimporter;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.zookeeper.ZooKeeper;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -14,10 +12,10 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Sample application to read the OSM xml files and store it into HBase
@@ -102,12 +100,12 @@ public class App {
                         }
 
                         // Get the id of the node
-                        double node_id = Double.MIN_VALUE;
+                        long node_id = Long.MIN_VALUE;
                         for (int i = 0; i < xmlr.getAttributeCount(); i++) {
                             String s = xmlr.getAttributeLocalName(i);
                             if (s.equals("ref")) {
                                 String value = xmlr.getAttributeValue(i);
-                                node_id = Double.parseDouble(value);
+                                node_id = Long.parseLong(value);
 
                             }
                         }
@@ -122,20 +120,15 @@ public class App {
                     // End of element
 
                     String s = xmlr.getLocalName();
-                    if (s.equals("node")) {// Add to map
+                    if (s.equals("node") && node != null) {// Add to map
                         nodes.put(node.id, node);
-
                         // Reset node
                         node = null;
-
-
-                    } else if (s.equals("way")) {// TODO: Determine the ways
+                    } else if (s.equals("way")) {
+                        // TODO: Determine the ways
                         ways.add(way);
-
                         // Reset way
                         way = null;
-
-
                     }
                 }
                 xmlr.next();
@@ -169,24 +162,43 @@ public class App {
         final byte[] OSM_ID = Bytes.toBytes("osm_id");
         final byte[] ND = Bytes.toBytes("nd");
 
+        List<Put> puts = new ArrayList<Put>();
+        int counter = 0;
+        int batch = 500;
         while(it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry)it.next();
             Node node = (Node) pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
-            p.addColumn(DATA, LAT, Bytes.toBytes(node.lat));
-            p.addColumn(DATA, LON, Bytes.toBytes(node.lon));
-            p.addColumn(DATA, OSM_ID, Bytes.toBytes(node.id));
-            // System.out.println(p);
-            try {
-                nodeTable.put(p);
-            } catch (IOException e) {
-                System.out.println("Node put failed");
-                e.printStackTrace();
+            p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.lat)));
+            p.addColumn(DATA, LON, Bytes.toBytes(String.valueOf(node.lon)));
+            p.addColumn(DATA, OSM_ID, Bytes.toBytes(String.valueOf(node.id)));
+            puts.add(p);
+            counter += 1;
+            if (counter % batch == 0) {
+                try {
+                    System.out.println("Batch " + counter + " / " + nodes.size());
+                    nodeTable.put(puts);
+                    puts.clear();
+                } catch (IOException e) {
+                    System.out.println("Node put failed");
+                    e.printStackTrace();
+                }
             }
+        }
+        System.out.println("Created all node puts");
+        try {
+            nodeTable.put(puts);
+            puts.clear();
+        } catch (IOException e) {
+            System.out.println("Node put failed");
+            e.printStackTrace();
         }
         System.out.println("Added all nodes");
 
         // Perform all the actions on the ways
+        System.out.println("Adding ways");
+        counter = 0;
+        batch = 100;
         HTable wayTable = null;
         try {
             wayTable = new HTable(hbconf, "way");
@@ -198,19 +210,31 @@ public class App {
             System.exit(1);
         }
         for(Way way : ways) {
-            Put p = new Put(Bytes.toBytes(way.id));
+            Put p = new Put(Bytes.toBytes(String.valueOf(way.id)));
             int index = 0;
             for (Node node : way.geohash_nodes) {
-                p.addColumn(ND, Bytes.toBytes(index), Bytes.toBytes(node.computeGeohash()));
+                p.addColumn(ND, Bytes.toBytes(String.valueOf(index)), Bytes.toBytes(node.computeGeohash()));
                 index += 1;
             }
             // todo: add way tags
-            try {
-                wayTable.put(p);
-            } catch (IOException e) {
-                System.out.println("Way put failed");
-                e.printStackTrace();
+            puts.add(p);
+            counter += 1;
+            if (counter % batch == 0) {
+                try {
+                    System.out.println("Batch " + counter + " / " + ways.size());
+                    wayTable.put(puts);
+                    puts.clear();
+                } catch (IOException e) {
+                    System.out.println("Way put failed");
+                    e.printStackTrace();
+                }
             }
+        }
+        try {
+            wayTable.put(puts);
+        } catch (IOException e) {
+            System.out.println("Way put failed");
+            e.printStackTrace();
         }
         System.out.println("Added all ways");
     }
