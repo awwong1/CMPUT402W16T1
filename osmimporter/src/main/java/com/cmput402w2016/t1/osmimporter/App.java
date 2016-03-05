@@ -45,7 +45,16 @@ public class App {
             while (xmlr.hasNext()) {
                 eventType = xmlr.getEventType();
                 System.out.println(getEventTypeString(eventType));
-                System.out.println(xmlr);
+                if(xmlr.isStartElement()) {
+                    System.out.println("Starting Element: " + xmlr.getName());
+                    for(int i=0; i < xmlr.getAttributeCount(); i++) {
+                        System.out.println("\t" + xmlr.getAttributeName(i) + ": " + xmlr.getAttributeValue(i));
+                    }
+                } else if (xmlr.isCharacters()) {
+                    // todo: idk
+                } else if (xmlr.isEndElement()) {
+                    System.out.println("Ending Element");
+                }
                 xmlr.next();
             }
         } catch (XMLStreamException e) {
