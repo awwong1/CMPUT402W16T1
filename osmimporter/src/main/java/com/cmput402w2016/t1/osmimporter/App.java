@@ -1,6 +1,7 @@
 package com.cmput402w2016.t1.osmimporter;
 
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -145,6 +146,9 @@ public class App {
         } catch (XMLStreamException e) {
             e.printStackTrace();
         }
+
+        Configuration hbconf =  HBaseConfiguration.create();
+
 
     }
 }
