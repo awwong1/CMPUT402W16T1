@@ -180,7 +180,7 @@ public class App {
 
         List<Put> puts = new ArrayList<Put>();
         int counter = 0;
-        int batch = 500;
+        int batch = 1000;
         while (it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry) it.next();
             Node node = (Node) pair.getValue();
@@ -210,7 +210,6 @@ public class App {
             e.printStackTrace();
         }
         System.out.println("Added all nodes");
-
         // Perform all the actions on the ways
         System.out.println("Adding ways");
         counter = 0;
@@ -234,7 +233,7 @@ public class App {
             }
             Iterator it_w = way.way_tags.entrySet().iterator();
             while (it_w.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
+                HashMap.Entry pair = (HashMap.Entry) it_w.next();
                 p.addColumn(TAG, Bytes.toBytes(String.valueOf(pair.getKey())), Bytes.toBytes(String.valueOf(pair.getValue())));
             }
             puts.add(p);
