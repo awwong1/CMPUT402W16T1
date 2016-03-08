@@ -22,7 +22,7 @@ public class App
             server.createContext("/get/node", new GetNodeHandler(gson));
 
             // Post Handlers
-
+            server.createContext("/post/traffic", new PostTrafficHandler(gson));
 
             // Start Server
             server.setExecutor(null);
@@ -30,6 +30,7 @@ public class App
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println( "Hello World!" );
+        System.out.println("Hello World!");
+        System.out.println("What is this magic. It still continues doing stuff?");
     }
 }
