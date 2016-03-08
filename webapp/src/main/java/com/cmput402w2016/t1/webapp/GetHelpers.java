@@ -7,9 +7,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by kent on 08/03/16.
- */
 public class GetHelpers {
     /*
       The following code is adapted from:

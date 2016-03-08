@@ -1,16 +1,14 @@
 package com.cmput402w2016.t1.webapp;
 
+import com.cmput402w2016.t1.webapp.handler.NodeHandler;
+import com.cmput402w2016.t1.webapp.handler.TrafficHandler;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-/**
- * Hello world!
- *
- */
-public class App 
+public class App
 {
     public static void main(String[] args)
     {
@@ -19,10 +17,10 @@ public class App
             Gson gson = new Gson();
 
             // Get Handlers
-            server.createContext("/get/node", new GetNodeHandler(gson));
+            server.createContext("/node", new NodeHandler(gson));
 
             // Post Handlers
-            server.createContext("/post/traffic", new PostTrafficHandler(gson));
+            server.createContext("/traffic", new TrafficHandler(gson));
 
             // Start Server
             server.setExecutor(null);

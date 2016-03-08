@@ -1,5 +1,6 @@
-package com.cmput402w2016.t1.webapp;
+package com.cmput402w2016.t1.webapp.handler;
 
+import com.cmput402w2016.t1.webapp.GetHelpers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -7,13 +8,10 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Created by kent on 08/03/16.
- */
-public class GetNodeHandler implements HttpHandler {
+public class NodeHandler implements HttpHandler {
     Gson gson;
 
-    GetNodeHandler(Gson gson) {
+    public NodeHandler(Gson gson) {
         this.gson = gson;
     }
 

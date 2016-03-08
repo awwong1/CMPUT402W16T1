@@ -1,5 +1,7 @@
-package com.cmput402w2016.t1.webapp;
+package com.cmput402w2016.t1.webapp.handler;
 
+import com.cmput402w2016.t1.webapp.GetHelpers;
+import com.cmput402w2016.t1.webapp.Location;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -8,13 +10,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/**
- * Created by kent on 08/03/16.
- */
-public class PostTrafficHandler implements HttpHandler {
+public class TrafficHandler implements HttpHandler {
     Gson gson;
 
-    PostTrafficHandler(Gson gson) {
+    public TrafficHandler(Gson gson) {
         this.gson = gson;
     }
 
