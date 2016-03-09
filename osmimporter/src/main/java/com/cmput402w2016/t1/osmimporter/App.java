@@ -21,7 +21,7 @@ import java.util.List;
  * Sample application to read the OSM xml files and store it into HBase
  */
 public class App {
-    public static final boolean ADD_NODES = false;
+    public static final boolean ADD_NODES = true;
     public static final boolean ADD_SEGMENTS = true;
 
     static final byte[] DATA = Bytes.toBytes("data");
@@ -160,12 +160,10 @@ public class App {
                 System.exit(1);
             }
             List<Put> puts = new ArrayList<>();
-            Iterator it = nodes.entrySet().iterator();
             int counter = 0;
             int batch = 500;
-            while (it.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
-                Node node = (Node) pair.getValue();
+            for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
+                Node node = pair.getValue();
                 Put p = new Put(Bytes.toBytes(node.computeGeohash()));
                 p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.lat)));
                 p.addColumn(DATA, LON, Bytes.toBytes(String.valueOf(node.lon)));
