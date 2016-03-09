@@ -12,10 +12,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Sample application to read the OSM xml files and store it into HBase
@@ -38,7 +35,7 @@ public class App {
         System.out.println(hbconf);
         // Current stuff
         HashMap<Long, Node> nodes = new HashMap<Long, Node>();
-        HashMap<String, ArrayList<String>> segments = new HashMap<String, ArrayList<String>>();
+        HashMap<String, String[]> segments = new HashMap<>();
 
         XMLInputFactory xmlif = XMLInputFactory.newFactory();
         XMLStreamReader xmlr = null;
@@ -103,13 +100,21 @@ public class App {
                             } else {
                                 Node currentNode = nodes.get(node_id);
                                 if (!segments.containsKey(previousNode.computeGeohash())) {
-                                    segments.put(previousNode.computeGeohash(), new ArrayList<String>());
+                                    segments.put(previousNode.computeGeohash(), new String[] {});
                                 }
-                                segments.get(previousNode.computeGeohash()).add(currentNode.computeGeohash());
+                                ArrayList<String> t_list;
+                                String[] cs;
+                                t_list = new ArrayList<>(Arrays.asList(segments.get(previousNode.computeGeohash())));
+                                t_list.add(currentNode.computeGeohash());
+                                cs = t_list.toArray(new String[t_list.size()]);
+                                segments.put(previousNode.computeGeohash(), cs);
                                 if (!segments.containsKey(currentNode.computeGeohash())) {
-                                    segments.put(currentNode.computeGeohash(), new ArrayList<String>());
+                                    segments.put(currentNode.computeGeohash(), new String[] {});
                                 }
-                                segments.get(currentNode.computeGeohash()).add(previousNode.computeGeohash());
+                                t_list = new ArrayList<>(Arrays.asList(segments.get(currentNode.computeGeohash())));
+                                t_list.add(previousNode.computeGeohash());
+                                cs = t_list.toArray(new String[t_list.size()]);
+                                segments.put(currentNode.computeGeohash(), cs);
                                 previousNode = currentNode;
                             }
                         } else {
@@ -150,12 +155,10 @@ public class App {
                 System.out.println("Node HBase table failed to load. Exiting...");
                 System.exit(1);
             }
-            Iterator it = nodes.entrySet().iterator();
             List<Put> puts = new ArrayList<>();
             int counter = 0;
             int batch = 1000;
-            while (it.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
+            for (Map.Entry pair : segments.entrySet()) {
                 Node node = (Node) pair.getValue();
                 Put p = new Put(Bytes.toBytes(node.computeGeohash()));
                 p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.getLat())));
@@ -202,10 +205,8 @@ public class App {
                 System.exit(1);
             }
 
-            Iterator it = segments.entrySet().iterator();
             List<Put> puts = new ArrayList<>();
-            while (it.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
+            for (Map.Entry pair : segments.entrySet()) {
                 String n_key = (String) pair.getKey();
                 @SuppressWarnings("unchecked")
                 ArrayList<String> n_vals = (ArrayList<String>) pair.getValue();
