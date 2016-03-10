@@ -25,10 +25,9 @@ public class App
             // Start Server
             server.setExecutor(null);
             server.start();
+            System.out.println("Server has started.");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Hello World!");
-        System.out.println("What is this magic. It still continues doing stuff?");
     }
 }

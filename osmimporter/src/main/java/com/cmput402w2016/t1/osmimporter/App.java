@@ -21,14 +21,14 @@ import java.util.List;
  * Sample application to read the OSM xml files and store it into HBase
  */
 public class App {
-    public static final boolean ADD_NODES = false;
+    public static final boolean ADD_NODES = true;
     public static final boolean ADD_SEGMENTS = true;
 
-    private static final byte[] DATA = Bytes.toBytes("data");
-    private static final byte[] LAT = Bytes.toBytes("lat");
-    private static final byte[] LON = Bytes.toBytes("lon");
-    private static final byte[] OSM_ID = Bytes.toBytes("osm_id");
-    private static final byte[] NODE = Bytes.toBytes("node");
+    static final byte[] DATA = Bytes.toBytes("data");
+    static final byte[] LAT = Bytes.toBytes("lat");
+    static final byte[] LON = Bytes.toBytes("lon");
+    static final byte[] OSM_ID = Bytes.toBytes("osm_id");
+    static final byte[] NODE = Bytes.toBytes("node");
 
     public static void main(String[] args) {
         System.out.println("Starting...");
@@ -37,8 +37,8 @@ public class App {
         Configuration hbconf = HBaseConfiguration.create();
         System.out.println(hbconf);
         // Current stuff
-        HashMap<Long, Node> nodes = new HashMap<Long, Node>();
-        HashMap<String, ArrayList<String>> segments = new HashMap<String, ArrayList<String>>();
+        HashMap<Long, Node> nodes = new HashMap<>();
+        ArrayList<Way> ways = new ArrayList<>();
 
         XMLInputFactory xmlif = XMLInputFactory.newFactory();
         XMLStreamReader xmlr = null;
@@ -49,7 +49,6 @@ public class App {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         if (xmlr == null) {
             System.out.println("Document failed to load. Exiting...");
             System.exit(1);
@@ -57,85 +56,95 @@ public class App {
 
         try {
             // Read the XML
-            Node node = null;
-            Node previousNode = null;
+            com.cmput402w2016.t1.osmimporter.Node node = null;
+            Way way = null;
+
+            label:
             while (xmlr.hasNext()) {
                 if (xmlr.isStartElement()) {
                     // Start of Element
+
                     // Consider only the things we care about
                     String s1 = xmlr.getLocalName();
-                    if (s1.equals("node")) {// Start new node
-                        node = new Node();
-                        // Get the node attributes we care about
-                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-                            String value = xmlr.getAttributeValue(i);
-                            String s = xmlr.getAttributeLocalName(i);
-                            if (s.equals("id")) {//System.out.println("Setting id: " + value);
-                                node.setId(value);
-                            } else if (s.equals("lat")) {//System.out.println("Setting latitude: " + value);
-                                node.setLat(value);
-                            } else if (s.equals("lon")) {//System.out.println("Setting longitude: " + value);
-                                node.setLon(value);
-                            }
-                            // Stop early if we have everything
-                            if (node.isComplete())
-                                break;
-                        }
-                    } else if (s1.equals("way")) {
-                        // Start new way
-                        // Don't care about Ways anymore, just do nothing
-                        xmlr.next();
-                        continue;
-                    } else if (s1.equals("nd")) {// Safeguard, don't know if I actually need it...
-                        long node_id = Long.MIN_VALUE;
-                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-                            String s = xmlr.getAttributeLocalName(i);
-                            if (s.equals("ref")) {
+                    switch (s1) {
+                        case "node": // Start new node
+                            node = new Node();
+
+                            // Get the node attributes we care about
+                            for (int i = 0; i < xmlr.getAttributeCount(); i++) {
                                 String value = xmlr.getAttributeValue(i);
-                                node_id = Long.parseLong(value);
-                                break;
-                            }
-                        }
-                        if (node_id != Long.MIN_VALUE) {
-                            if (previousNode == null) {
-                                // Add node to way
-                                previousNode = nodes.get(node_id);
-                            } else {
-                                Node currentNode = nodes.get(node_id);
-                                if (!segments.containsKey(previousNode.computeGeohash())) {
-                                    segments.put(previousNode.computeGeohash(), new ArrayList<String>());
+                                String s = xmlr.getAttributeLocalName(i);
+                                switch (s) {
+                                    case "id": //System.out.println("Setting id: " + value);
+                                        node.setId(value);
+                                        break;
+                                    case "lat": //System.out.println("Setting latitude: " + value);
+                                        node.setLat(value);
+                                        break;
+                                    case "lon": //System.out.println("Setting longitude: " + value);
+                                        node.setLon(value);
+                                        break;
                                 }
-                                segments.get(previousNode.computeGeohash()).add(currentNode.computeGeohash());
-                                if (!segments.containsKey(currentNode.computeGeohash())) {
-                                    segments.put(currentNode.computeGeohash(), new ArrayList<String>());
-                                }
-                                segments.get(currentNode.computeGeohash()).add(previousNode.computeGeohash());
-                                previousNode = currentNode;
+                                // Stop early if we have everything
+                                if (node.isComplete())
+                                    break;
                             }
-                        } else {
-                            System.out.println("Something went wrong and the node lookup barfed :(");
-                        }
+
+                            break;
+                        case "way": // Start new way
+                            way = new Way();
+                            // Get the way attributes we care about
+                            for (int i = 0; i < xmlr.getAttributeCount(); i++) {
+                                String value = xmlr.getAttributeValue(i);
+                                String s = xmlr.getAttributeLocalName(i);
+                                if (s.equals("id")) {//System.out.println("Setting id: " + value);
+                                    way.setId(value);
+
+                                }
+                            }
+                            break;
+                        case "nd": // Safeguard, don't know if I actually need it...
+                            if (way == null) {
+                                System.out.println("Turns out we needed it, lololol");
+                                break label;
+                            }
+                            // Get the id of the node
+                            long node_id = Long.MIN_VALUE;
+                            for (int i = 0; i < xmlr.getAttributeCount(); i++) {
+                                String s = xmlr.getAttributeLocalName(i);
+                                if (s.equals("ref")) {
+                                    String value = xmlr.getAttributeValue(i);
+                                    node_id = Long.parseLong(value);
+
+                                }
+                            }
+                            // Add node to way
+                            if (node_id != Double.MIN_VALUE) {
+                                way.addNode(nodes.get(node_id));
+                            }
+                            break;
                     }
                 } else if (xmlr.isEndElement()) {
                     // End of element
                     String s = xmlr.getLocalName();
-                    if (s.equals("node") && node != null) {
-                        nodes.put(node.getId(), node);
+                    if (s.equals("node") && node != null) {// Add to map
+                        nodes.put(node.id, node);
                         // Reset node
                         node = null;
                     } else if (s.equals("way")) {
-                        // Reset segment
-                        previousNode = null;
+                        ways.add(way);
+                        // Reset way
+                        way = null;
                     }
                 }
                 xmlr.next();
             }
+            // DEBUG: Stats!
+            System.out.println("How many nodes did I read? This many, yo: " + nodes.size());
+            System.out.println("How many ways did I read? This many, yo: " + ways.size());
         } catch (XMLStreamException e) {
             e.printStackTrace();
         }
-        // DEBUG: Stats!
-        System.out.println("How many nodes did I read? This many, yo: " + nodes.size());
-        System.out.println("How many segments did I process? This many, yo: " + segments.size());
 
         if (ADD_NODES) {
             // Perform all the actions on the nodes
@@ -150,17 +159,15 @@ public class App {
                 System.out.println("Node HBase table failed to load. Exiting...");
                 System.exit(1);
             }
-            Iterator it = nodes.entrySet().iterator();
             List<Put> puts = new ArrayList<>();
             int counter = 0;
-            int batch = 1000;
-            while (it.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
-                Node node = (Node) pair.getValue();
+            int batch = 500;
+            for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
+                Node node = pair.getValue();
                 Put p = new Put(Bytes.toBytes(node.computeGeohash()));
-                p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.getLat())));
-                p.addColumn(DATA, LON, Bytes.toBytes(String.valueOf(node.getLon())));
-                p.addColumn(DATA, OSM_ID, Bytes.toBytes(String.valueOf(node.getId())));
+                p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.lat)));
+                p.addColumn(DATA, LON, Bytes.toBytes(String.valueOf(node.lon)));
+                p.addColumn(DATA, OSM_ID, Bytes.toBytes(String.valueOf(node.id)));
                 puts.add(p);
                 counter += 1;
                 if (counter % batch == 0) {
@@ -184,10 +191,9 @@ public class App {
             }
             System.out.println("Added all nodes");
         }
-
         if (ADD_SEGMENTS) {
             // Perform all the actions on the ways
-            System.out.println("Adding segments");
+            System.out.println("Adding ways");
             int counter = 0;
             int batch = 100;
             HTable wayTable = null;
@@ -198,30 +204,32 @@ public class App {
                 e.printStackTrace();
             }
             if (wayTable == null) {
-                System.out.println("Segment HBase table failed to load. Exiting...");
+                System.out.println("Way HBase table failed to load. Exiting...");
                 System.exit(1);
             }
-
-            Iterator it = segments.entrySet().iterator();
             List<Put> puts = new ArrayList<>();
-            while (it.hasNext()) {
-                HashMap.Entry pair = (HashMap.Entry) it.next();
-                String n_key = (String) pair.getKey();
-                @SuppressWarnings("unchecked")
-                ArrayList<String> n_vals = (ArrayList<String>) pair.getValue();
-                Put p = new Put(Bytes.toBytes(n_key));
-                for (String n_val : n_vals) {
-                    p.addColumn(NODE, Bytes.toBytes(n_val), Bytes.toBytes(String.valueOf(nodes.get(Long.valueOf(n_val)).getId())));
+            for (Way way : ways) {
+                Node previousNode = null;
+                for (Node node : way.geohash_nodes) {
+                    if (previousNode == null) {
+                        previousNode = node;
+                        continue;
+                    }
+                    Put p = new Put(Bytes.toBytes(previousNode.computeGeohash()));
+                    p.addColumn(NODE, Bytes.toBytes(node.computeGeohash()), Bytes.toBytes(String.valueOf(node.id)));
+                    puts.add(p);
+                    p = new Put(Bytes.toBytes(node.computeGeohash()));
+                    p.addColumn(NODE, Bytes.toBytes(previousNode.computeGeohash()), Bytes.toBytes(String.valueOf(previousNode.id)));
+                    puts.add(p);
                 }
-                puts.add(p);
                 counter += 1;
                 if (counter % batch == 0) {
                     try {
-                        System.out.println("Batch " + counter + " / " + segments.size());
+                        System.out.println("Batch " + counter + " / " + ways.size());
                         wayTable.put(puts);
                         puts.clear();
                     } catch (IOException e) {
-                        System.out.println("Segment put failed");
+                        System.out.println("Way put failed");
                         e.printStackTrace();
                     }
                 }
@@ -229,10 +237,10 @@ public class App {
             try {
                 wayTable.put(puts);
             } catch (IOException e) {
-                System.out.println("Segment put failed");
+                System.out.println("Way put failed");
                 e.printStackTrace();
             }
-            System.out.println("Added all segments");
+            System.out.println("Added all ways");
         }
     }
 }

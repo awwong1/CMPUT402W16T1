@@ -1,6 +1,6 @@
 package com.cmput402w2016.t1.webapp.handler;
 
-import com.cmput402w2016.t1.webapp.GetHelpers;
+import com.cmput402w2016.t1.webapp.Helper;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -19,7 +19,7 @@ public class NodeHandler implements HttpHandler {
         // Get & parse query
         String query = httpExchange.getRequestURI().getRawQuery();
         System.out.println(query); // DEBUG
-        Map<String, String> stringStringMap = GetHelpers.queryToMap(query);
+        Map<String, String> stringStringMap = Helper.queryToMap(query);
         for (String key: stringStringMap.keySet()) {
             System.out.println("Key: " + key + ", Value: " + stringStringMap.get(key));
         }
@@ -39,7 +39,7 @@ public class NodeHandler implements HttpHandler {
 
         } else {
             // Unknown Request
-            GetHelpers.malformedRequestResponse(httpExchange, "Missing parameter. Use 'id', 'geohash' or 'lat' & 'lon'.");
+            Helper.malformedRequestResponse(httpExchange, 400, "Missing parameter. Use 'id', 'geohash' or 'lat' & 'lon'.");
 
         }
 

@@ -1,20 +1,21 @@
 package com.cmput402w2016.t1.webapp;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.apache.hadoop.yarn.webapp.WebApp;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetHelpers {
+public class Helper {
     /*
       The following code is adapted from:
         http://stackoverflow.com/questions/11640025/java-httpserver-httpexchange-get
       Feed the function a raw query string and it will generate a map with key-value pairs to use
      */
     public static Map<String, String> queryToMap(String query) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (String param : query.split("&")) {
             String pair[] = param.split("=");
             if (pair.length > 1) {
@@ -26,14 +27,18 @@ public class GetHelpers {
         return result;
     }
 
-    public static void malformedRequestResponse(HttpExchange http, String hint) throws IOException {
+    public static void malformedRequestResponse(HttpExchange http, int responseCode) throws IOException {
+        malformedRequestResponse(http, responseCode, null);
+    }
+
+    public static void malformedRequestResponse(HttpExchange http, int responseCode, String hint) throws IOException {
         String response;
         if(hint != null) {
             response = "{\"error\": \"Could not serve request (" + hint + ")\"}";
         } else {
             response = "{\"error\": \"Could not serve request\"}";
         }
-        http.sendResponseHeaders(400, response.length());
+        http.sendResponseHeaders(responseCode, response.length());
         OutputStream os = http.getResponseBody();
         os.write(response.getBytes());
     }
