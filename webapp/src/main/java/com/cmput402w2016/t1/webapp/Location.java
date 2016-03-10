@@ -19,7 +19,7 @@ public class Location {
 
     public boolean isValid() {
         return this.lat != null && this.lon != null &&
-                -90.0 < this.lat && this.lat < 90.0 && this.lon < -180.0 && this.lon > 180.0;
+                this.lat > -90.0 && this.lat < 90.0 && this.lon > -180.0 && this.lon < 180.0;
     }
 
     @Override
