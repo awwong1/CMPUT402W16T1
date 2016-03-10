@@ -1,7 +1,7 @@
 package com.cmput402w2016.t1.webapp.handler;
 
-import com.cmput402w2016.t1.webapp.GetHelpers;
-import com.cmput402w2016.t1.webapp.Location;
+import com.cmput402w2016.t1.webapp.Helper;
+import com.cmput402w2016.t1.webapp.data.TrafficData;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -18,29 +18,61 @@ public class TrafficHandler implements HttpHandler {
     }
 
     public void handle(HttpExchange httpExchange) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(httpExchange.getRequestBody()));
-        TrafficData trafficData = gson.fromJson(reader, TrafficData.class);
+        // GET, PUT, POST, DELETE
+        // Currently only POST is supported
+        String requestMethod = httpExchange.getRequestMethod();
+        System.out.println(requestMethod);
+        if (requestMethod.equalsIgnoreCase("POST")) {
+            String rawContent = "";
+            try (InputStreamReader instream = new InputStreamReader(httpExchange.getRequestBody());
+                 BufferedReader buffer = new BufferedReader(instream)) {
+                String line;
+                while ((line = buffer.readLine()) != null) {
+                    rawContent += line;
+                }
+                System.out.println(rawContent);
+            } catch (Exception e) {
+                // POST data read exception, can't post invalid traffic information
+                e.printStackTrace();
+                Helper.malformedRequestResponse(httpExchange, 400, "Could not read POST data");
+                httpExchange.close();
+                return;
+            }
 
-        if(trafficData != null) {
-            // TODO: Put information in HBase
-            // DEBUG
-            System.out.println("Location Data");
-            System.out.println("  from: " + trafficData.from);
-            System.out.println("  to: " + trafficData.to);
-            System.out.println("  key: " + trafficData.key);
-            System.out.println("  value: " + trafficData.value);
+            if (rawContent.equals("")) {
+                // POST data missing, can't create blank traffic information
+                Helper.malformedRequestResponse(httpExchange, 400, "POST contained no data");
+                httpExchange.close();
+                return;
+            }
+
+            TrafficData trafficData = gson.fromJson(rawContent, TrafficData.class);
+            if(trafficData != null) {
+                if (!trafficData.isValid()) {
+                    Helper.malformedRequestResponse(httpExchange, 400, "Invalid traffic data posted");
+                    httpExchange.close();
+                    return;
+                }
+                // TODO: Put information in HBase
+                // DEBUG
+                System.out.println("Location Data");
+                System.out.println("  from: " + trafficData.getFrom());
+                System.out.println("  to: " + trafficData.getTo());
+                System.out.println("  key: " + trafficData.getKey());
+                System.out.println("  value: " + trafficData.getValue());
+            } else {
+                // Submitted POST data that did not parse into the Traffic Data object
+                Helper.malformedRequestResponse(httpExchange, 400, "Couldn't parse POST data into traffic data JSON");
+                httpExchange.close();
+                return;
+            }
         } else {
-            // TODO: Error, couldn't parse data.
-            GetHelpers.malformedRequestResponse(httpExchange, "Couldn't parse traffic data JSON");
+            // Submitted a method other than POST
+            Helper.malformedRequestResponse(httpExchange, 400, "Currently only creation supported through POST");
+            httpExchange.close();
+            return;
         }
 
         httpExchange.close();
-    }
-
-    private class TrafficData {
-        private Location from;
-        private Location to;
-        private String key;
-        private String value;
     }
 }
