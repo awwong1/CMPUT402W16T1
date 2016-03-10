@@ -8,9 +8,6 @@ import org.joda.time.DateTimeZone;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by kent on 09/03/16.
- */
 public class Data {
     // Description where the data is sourced from
     String source;
