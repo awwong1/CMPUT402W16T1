@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 public class Location {
@@ -29,6 +28,9 @@ public class Location {
         if (str != null && str.length() > 0) {
             str = str.substring(0, str.length()-1);
         }
+        if (str == null) {
+            return "";
+        }
         return str;
     }
 
@@ -37,13 +39,20 @@ public class Location {
         while (!geoHash.equals("")) {
             System.out.println(geoHash);
             Scan scan = new Scan();
-            Filter filter = new ColumnPrefixFilter(geoHash.getBytes());
-            scan.setFilter(filter);
+            scan.setRowPrefixFilter(geoHash.getBytes());
+            System.out.println("Initialized scanner");
             try {
+                System.out.println("Initialized result scanner & scanning");
                 ResultScanner rs = App.node_table.getScanner(scan);
+                System.out.println("Scan done, getting next result");
                 Result result = rs.next();
-                return Arrays.toString(result.getRow());
-            } catch (IOException e) {
+                if (result == null) {
+                    System.out.println("Could not get result");
+                } else {
+                    System.out.println("Got result");
+                    return Arrays.toString(result.getRow());
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             geoHash = shorten(geoHash);

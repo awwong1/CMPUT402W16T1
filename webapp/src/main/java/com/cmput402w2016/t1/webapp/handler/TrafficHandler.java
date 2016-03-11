@@ -17,7 +17,7 @@ public class TrafficHandler implements HttpHandler {
         this.gson = gson;
     }
 
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void handle(HttpExchange httpExchange) {
         // GET, PUT, POST, DELETE
         // Currently only POST is supported
         String requestMethod = httpExchange.getRequestMethod();
@@ -39,7 +39,7 @@ public class TrafficHandler implements HttpHandler {
                 return;
             }
 
-            System.out.println("I'm here");
+            System.out.println("Pre POST Contained No Data");
             if (rawContent.equals("")) {
                 // POST data missing, can't create blank traffic information
                 Helper.malformedRequestResponse(httpExchange, 400, "POST contained no data");
@@ -47,8 +47,15 @@ public class TrafficHandler implements HttpHandler {
                 return;
             }
 
-            TrafficData trafficData = gson.fromJson(rawContent, TrafficData.class);
-            if(trafficData != null) {
+            System.out.println("Pre TrafficData Obj Instantiation");
+            TrafficData trafficData = null;
+            try {
+                trafficData = gson.fromJson(rawContent, TrafficData.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Post TrafficData Obj Instantiation");
+            if (trafficData != null) {
                 if (!trafficData.isValid()) {
                     Helper.malformedRequestResponse(httpExchange, 400, "Invalid traffic data posted");
                     httpExchange.close();

@@ -26,19 +26,23 @@ public class Helper {
         return result;
     }
 
-    public static void malformedRequestResponse(HttpExchange http, int responseCode) throws IOException {
+    public static void malformedRequestResponse(HttpExchange http, int responseCode) {
         malformedRequestResponse(http, responseCode, null);
     }
 
-    public static void malformedRequestResponse(HttpExchange http, int responseCode, String hint) throws IOException {
+    public static void malformedRequestResponse(HttpExchange http, int responseCode, String hint) {
         String response;
         if(hint != null) {
             response = "{\"error\": \"Could not serve request (" + hint + ")\"}";
         } else {
             response = "{\"error\": \"Could not serve request\"}";
         }
-        http.sendResponseHeaders(responseCode, response.length());
-        OutputStream os = http.getResponseBody();
-        os.write(response.getBytes());
+        try {
+            http.sendResponseHeaders(responseCode, response.length());
+            OutputStream os = http.getResponseBody();
+            os.write(response.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
