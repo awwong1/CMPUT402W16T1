@@ -1,12 +1,9 @@
 package com.cmput402w2016.t1.webapp;
 
 import com.github.davidmoten.geo.GeoHash;
-import com.github.davidmoten.geo.LatLong;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.Filter;
 
 import java.util.Arrays;
 
@@ -19,12 +16,24 @@ public class Location {
         this.lon = Double.parseDouble(lon);
     }
 
+    /**
+     * Compute the geohash from the lat lon, return the string value of the geohash with maximum precision.
+     * @return String geohash value
+     */
     public String computeGeohash() {
-        LatLong latLon = new LatLong(lat, lon);
-        return GeoHash.encodeHash(latLon);
+        return GeoHash.encodeHash(lat, lon);
     }
 
+    /**
+     * Take the string, shorten it by one character, return the string.
+     * If the string is the empty string "", return null.
+     * @param str String to shorten
+     * @return Shortened string or null
+     */
     private String shorten(String str) {
+        if ("".equals(str)) {
+            return null;
+        }
         if (str != null && str.length() > 0) {
             str = str.substring(0, str.length()-1);
         }
@@ -34,23 +43,20 @@ public class Location {
         return str;
     }
 
+    /**
+     * Find the closest known node for the lat long associated with this location
+     * @return String geohash of the closest known node to this location or null if no known nodes
+     */
     public String getClosestNode() {
         String geoHash = computeGeohash();
-        while (!geoHash.equals("")) {
-            System.out.println(geoHash);
+        while (geoHash != null) {
             Scan scan = new Scan();
             scan.setRowPrefixFilter(geoHash.getBytes());
-            System.out.println("Initialized scanner");
             try {
-                System.out.println("Initialized result scanner & scanning");
                 ResultScanner rs = App.node_table.getScanner(scan);
-                System.out.println("Scan done, getting next result");
                 Result result = rs.next();
-                if (result == null) {
-                    System.out.println("Could not get result");
-                } else {
-                    System.out.println("Got result");
-                    return Arrays.toString(result.getRow());
+                if (result != null) {
+                    return new String(result.getRow());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -60,6 +66,10 @@ public class Location {
         return null;
     }
 
+    /**
+     * Check if the lat lon provided are actual, valid lat lon values.
+     * @return true if location is valid, false otherwise
+     */
     public boolean isValid() {
         return this.lat != null && this.lon != null &&
                 this.lat > -90.0 && this.lat < 90.0 && this.lon > -180.0 && this.lon < 180.0;

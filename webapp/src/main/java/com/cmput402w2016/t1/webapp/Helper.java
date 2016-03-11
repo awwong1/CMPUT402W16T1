@@ -26,10 +26,6 @@ public class Helper {
         return result;
     }
 
-    public static void malformedRequestResponse(HttpExchange http, int responseCode) {
-        malformedRequestResponse(http, responseCode, null);
-    }
-
     public static void malformedRequestResponse(HttpExchange http, int responseCode, String hint) {
         String response;
         if(hint != null) {
@@ -41,6 +37,16 @@ public class Helper {
             http.sendResponseHeaders(responseCode, response.length());
             OutputStream os = http.getResponseBody();
             os.write(response.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void requestResponse(HttpExchange http, int responseCode, String msg) {
+        try {
+            http.sendResponseHeaders(responseCode, msg.length());
+            OutputStream os = http.getResponseBody();
+            os.write(msg.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

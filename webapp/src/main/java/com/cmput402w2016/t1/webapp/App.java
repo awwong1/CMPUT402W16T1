@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class App {
-    protected static Table node_table = null;
-    protected static Table segment_table = null;
-    protected static Table traffic_table = null;
+    public static Table node_table = null;
+    public static Table segment_table = null;
+    public static Table traffic_table = null;
 
     public static void main(String[] args) {
         // This is how much code it takes if you do it the "Proper" way, without using the deprecated methods
