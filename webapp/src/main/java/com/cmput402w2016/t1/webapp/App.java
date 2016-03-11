@@ -13,12 +13,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class App {
+    protected static Table node_table = null;
+    protected static Table segment_table = null;
+    protected static Table traffic_table = null;
+
     public static void main(String[] args) {
         // This is how much code it takes if you do it the "Proper" way, without using the deprecated methods
 
-        Table node_table = null;
-        Table segment_table = null;
-        Table traffic_table = null;
         try {
             Configuration hbconf;
             Connection conn;

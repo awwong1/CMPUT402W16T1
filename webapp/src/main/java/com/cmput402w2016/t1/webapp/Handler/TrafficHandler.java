@@ -39,6 +39,7 @@ public class TrafficHandler implements HttpHandler {
                 return;
             }
 
+            System.out.println("I'm here");
             if (rawContent.equals("")) {
                 // POST data missing, can't create blank traffic information
                 Helper.malformedRequestResponse(httpExchange, 400, "POST contained no data");
@@ -55,14 +56,20 @@ public class TrafficHandler implements HttpHandler {
                 }
                 // TODO: Put information in HBase
                 // DEBUG
+                System.out.println("Getting closest node");
+                System.out.println(trafficData.getFrom().getClosestNode());
+                System.out.println(trafficData.getTo().getClosestNode());
                 System.out.println("Location Data");
                 System.out.println("  from: " + trafficData.getFrom());
                 System.out.println("  to: " + trafficData.getTo());
                 System.out.println("  key: " + trafficData.getKey());
                 System.out.println("  value: " + trafficData.getValue());
+                Helper.malformedRequestResponse(httpExchange, 400, "DEBUG: dis be ok");
+                httpExchange.close();
+                return;
             } else {
                 // Submitted POST data that did not parse into the Traffic Data object
-                Helper.malformedRequestResponse(httpExchange, 400, "Couldn't parse POST data into traffic data JSON");
+                Helper.malformedRequestResponse(httpExchange, 400, "Could not parse POST data into traffic data JSON");
                 httpExchange.close();
                 return;
             }
@@ -73,6 +80,6 @@ public class TrafficHandler implements HttpHandler {
             return;
         }
 
-        httpExchange.close();
+        //httpExchange.close();
     }
 }
