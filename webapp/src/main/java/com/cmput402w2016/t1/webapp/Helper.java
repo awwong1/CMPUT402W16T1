@@ -1,7 +1,6 @@
 package com.cmput402w2016.t1.webapp;
 
 import com.sun.net.httpserver.HttpExchange;
-import org.apache.hadoop.yarn.webapp.WebApp;
 
 import java.io.IOException;
 import java.io.OutputStream;

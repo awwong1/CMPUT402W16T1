@@ -9,38 +9,30 @@ public class TrafficData {
     private String key;
     private String value;
 
+    public TrafficData(Location from, Location to, String key, String value) {
+        this.from = from;
+        this.to = to;
+        this.key = key;
+        this.value = value;
+    }
+
     public boolean isValid() {
         return from.isValid() && to.isValid() && NumberUtils.isNumber(value) && !key.contains("~");
     }
+
     public Location getFrom() {
         return from;
-    }
-
-    public void setFrom(Location from) {
-        this.from = from;
     }
 
     public Location getTo() {
         return to;
     }
 
-    public void setTo(Location to) {
-        this.to = to;
-    }
-
     public String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }
