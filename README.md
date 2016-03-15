@@ -10,7 +10,8 @@ Team 1 Members:
 ## Links
 * [Project Wiki](https://github.com/cmput402w2016/CMPUT402W16T1/wiki)
 * [Overall high level project description](wiki_static/CMPUT402%20Project.pdf).
-* [Cloudera Manager (Instance)](http://162.246.157.164:7180/)
+* [Cloudera Manager (Instance)](http://mapcore.cloud.cybera.ca:7180/)
+  * Set the /etc/hosts file appropriately as discussed with the various team members.
 
 ## High Level Goal
 Team 1: Generation of Synthetic Traffic Data
