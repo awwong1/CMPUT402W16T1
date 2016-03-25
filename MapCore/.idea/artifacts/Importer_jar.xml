@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Importer:jar">
-    <output-path>$PROJECT_DIR$/classes/artifacts/Importer_jar</output-path>
-    <root id="archive" name="MapCore.jar">
-      <element id="module-output" name="MapCore" />
-    </root>
-  </artifact>
-</component>
