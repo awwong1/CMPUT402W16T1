@@ -27,17 +27,17 @@ public class Importer {
     private static final byte[] NODE = Bytes.toBytes("node");
 
     // Holder variables for the HBase Configurations and XML parsed nodes and ways
-    private static Configuration hbconf = HBaseConfiguration.create();
-    private static HashMap<Long, Node> nodes = new HashMap<>();
-    private static ArrayList<Way> ways = new ArrayList<>();
+    private static final Configuration configuration = HBaseConfiguration.create();
+    private static final HashMap<Long, Node> nodes = new HashMap<>();
+    private static final ArrayList<Way> ways = new ArrayList<>();
 
     public static void import_from_file(String filename) throws XMLStreamException {
         System.out.println("Starting...");
-        System.out.println(hbconf.toString());
-        XMLInputFactory xmlif = XMLInputFactory.newFactory();
-        XMLStreamReader xmlr;
+        System.out.println(configuration.toString());
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+        XMLStreamReader xmlStreamReader;
         try {
-            xmlr = xmlif.createXMLStreamReader(new FileInputStream(filename));
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(new FileInputStream(filename));
         } catch (FileNotFoundException e) {
             System.err.println("OSM XML file not found!");
             e.printStackTrace();
@@ -48,17 +48,17 @@ public class Importer {
         Node node = null;
         Way way = null;
 
-        while (xmlr.hasNext()) {
-            if (xmlr.isStartElement()) {
+        while (xmlStreamReader.hasNext()) {
+            if (xmlStreamReader.isStartElement()) {
                 // Start of Element, consider only the things we care about
-                String s1 = xmlr.getLocalName();
+                String s1 = xmlStreamReader.getLocalName();
                 switch (s1) {
                     case "node": // Start new node
                         node = new Node();
                         // Get the node attributes we care about
-                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-                            String value = xmlr.getAttributeValue(i);
-                            String s = xmlr.getAttributeLocalName(i);
+                        for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++) {
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            String s = xmlStreamReader.getAttributeLocalName(i);
                             switch (s) {
                                 case "id":
                                     node.setId(value);
@@ -77,9 +77,9 @@ public class Importer {
                     case "way": // Start new way
                         way = new Way();
                         // Get the way attributes we care about
-                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-                            String value = xmlr.getAttributeValue(i);
-                            String s = xmlr.getAttributeLocalName(i);
+                        for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++) {
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            String s = xmlStreamReader.getAttributeLocalName(i);
                             if (s.equals("id")) {
                                 way.setId(value);
                             }
@@ -87,15 +87,15 @@ public class Importer {
                         break;
                     case "nd": // Start the way's node reference
                         if (way == null) {
-                            System.err.println("Parser Error, Turns out we needed our way, lololol");
+                            System.err.println("Parser Error, Turns out we needed our way object.");
                             return;
                         }
                         // Get the id of the node
                         long node_id = Long.MIN_VALUE;
-                        for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-                            String s = xmlr.getAttributeLocalName(i);
+                        for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++) {
+                            String s = xmlStreamReader.getAttributeLocalName(i);
                             if (s.equals("ref")) {
-                                String value = xmlr.getAttributeValue(i);
+                                String value = xmlStreamReader.getAttributeValue(i);
                                 node_id = Long.parseLong(value);
                             }
                         }
@@ -105,8 +105,8 @@ public class Importer {
                         }
                         break;
                 }
-            } else if (xmlr.isEndElement()) {
-                String s = xmlr.getLocalName();
+            } else if (xmlStreamReader.isEndElement()) {
+                String s = xmlStreamReader.getLocalName();
                 if (s.equals("node") && node != null) {// Add to map
                     nodes.put(node.getId(), node);
                     node = null;
@@ -115,7 +115,7 @@ public class Importer {
                     way = null;
                 }
             }
-            xmlr.next();
+            xmlStreamReader.next();
         }
 
         System.out.println("Number of nodes read: " + nodes.size());
@@ -126,11 +126,11 @@ public class Importer {
     }
 
     private static Table get_table(String raw_table_name) throws IOException {
-        Connection conn = ConnectionFactory.createConnection(hbconf);
+        Connection conn = ConnectionFactory.createConnection(configuration);
         Admin admin = conn.getAdmin();
-        TableName[] table_names = admin.listTableNames("node");
+        TableName[] table_names = admin.listTableNames(raw_table_name);
         for (TableName table_name : table_names) {
-            if (table_name.getNameAsString().equals("node")) {
+            if (table_name.getNameAsString().equals(raw_table_name)) {
                 return conn.getTable(table_name);
             }
         }
