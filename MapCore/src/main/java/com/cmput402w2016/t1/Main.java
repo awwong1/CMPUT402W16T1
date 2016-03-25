@@ -17,7 +17,7 @@ public class Main {
         options.addOption("s", "simulator", true, "run the simulator");
 
         try {
-            CommandLineParser parser = new DefaultParser();
+            CommandLineParser parser = new BasicParser();
             CommandLine line = parser.parse(options, args);
 
             if (line.hasOption("h")) {
