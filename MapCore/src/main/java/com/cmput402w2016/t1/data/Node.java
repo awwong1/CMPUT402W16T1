@@ -3,12 +3,17 @@ package com.cmput402w2016.t1.data;
 
 import com.github.davidmoten.geo.GeoHash;
 import com.github.davidmoten.geo.LatLong;
+import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Node {
-    long id;
-    double lat;
-    double lon;
-    String geohash = null;
+    private long id;
+    private double lat;
+    private double lon;
+    private String geohash = null;
+    private Map<String, String> tags = new HashMap<>();
 
     public Node() {
         id = Long.MIN_VALUE;
@@ -50,5 +55,18 @@ public class Node {
             geohash = GeoHash.encodeHash(latLon);
         }
         return geohash;
+    }
+
+    public void addTag(String key, String value) {
+        tags.put(key, value);
+    }
+
+    public Map<String, String> getTags() {
+        return this.tags;
+    }
+
+    public String getTagsAsSerializedJSON() {
+        Gson gson = new Gson();
+        return gson.toJson(this.getTags());
     }
 }

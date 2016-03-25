@@ -21,9 +21,8 @@ import java.util.List;
 public class Importer {
     // Values for the HBase Column Families and Keys
     private static final byte[] DATA = Bytes.toBytes("data");
-    private static final byte[] LAT = Bytes.toBytes("lat");
-    private static final byte[] LON = Bytes.toBytes("lon");
     private static final byte[] OSM_ID = Bytes.toBytes("osm_id");
+    private static final byte[] TAGS = Bytes.toBytes("tags");
     private static final byte[] NODE = Bytes.toBytes("node");
 
     // Holder variables for the HBase Configurations and XML parsed nodes and ways
@@ -108,7 +107,33 @@ public class Importer {
                             way.addNode(nodes.get(node_id));
                         }
                         break;
+                    case "tag": // Start the tag parsing
+                        String key = "";
+                        String value = "";
+                        for (int i = 0; i < xmlStreamReader.getAttributeCount(); i++) {
+                            String s = xmlStreamReader.getAttributeLocalName(i);
+                            if (s.equals("k")) {
+                                key = xmlStreamReader.getAttributeValue(i);
+                            }
+                            if (s.equals("v")) {
+                                value = xmlStreamReader.getAttributeValue(i);
+                            }
+                            if (!key.equals("") & !value.equals("")) {
+                                if (node != null) {
+                                    // This is a node tag
+                                    node.addTag(key, value);
+                                } else if (way != null) {
+                                    // This is a way tag
+                                    way.addTag(key, value);
+                                } else {
+                                    System.err.println(key + ": " + value + " not associated to node or way!");
+                                }
+                                key = "";
+                                value = "";
+                            }
+                        }
                 }
+
             } else if (xmlStreamReader.isEndElement()) {
                 String s = xmlStreamReader.getLocalName();
                 if (s.equals("node") && node != null) {// Add to map
@@ -124,8 +149,11 @@ public class Importer {
 
         System.out.println("Number of nodes read: " + nodes.size());
         System.out.println("Number of ways read: " + ways.size());
+
         import_nodes();
+
         import_ways();
+
         System.out.println("Finished!");
     }
 
@@ -168,14 +196,13 @@ public class Importer {
         for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
-            p.addColumn(DATA, LAT, Bytes.toBytes(String.valueOf(node.getLat())));
-            p.addColumn(DATA, LON, Bytes.toBytes(String.valueOf(node.getLon())));
             p.addColumn(DATA, OSM_ID, Bytes.toBytes(String.valueOf(node.getId())));
+            p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsAsSerializedJSON()));
             puts.add(p);
             counter += 1;
             if (counter % batch == 0) {
                 try {
-                    System.out.println("Batch " + counter + " / " + nodes.size());
+                    System.out.print("\rBatch " + counter + " / " + nodes.size());
                     nodeTable.put(puts);
                     puts.clear();
                 } catch (IOException e) {
@@ -218,17 +245,18 @@ public class Importer {
                     continue;
                 }
                 Put p = new Put(Bytes.toBytes(previousNode.computeGeohash()));
-                p.addColumn(NODE, Bytes.toBytes(node.computeGeohash()), Bytes.toBytes(String.valueOf(node.getId())));
+                p.addColumn(NODE, Bytes.toBytes(node.computeGeohash()),
+                        Bytes.toBytes(String.valueOf(way.getTagsAsSerializedJSON())));
                 puts.add(p);
                 p = new Put(Bytes.toBytes(node.computeGeohash()));
                 p.addColumn(NODE, Bytes.toBytes(previousNode.computeGeohash()),
-                        Bytes.toBytes(String.valueOf(previousNode.getId())));
+                        Bytes.toBytes(String.valueOf(way.getTagsAsSerializedJSON())));
                 puts.add(p);
             }
             counter += 1;
             if (counter % batch == 0) {
                 try {
-                    System.out.println("Batch " + counter + " / " + ways.size());
+                    System.out.print("\rBatch " + counter + " / " + ways.size());
                     segmentTable.put(puts);
                     puts.clear();
                 } catch (IOException e) {
