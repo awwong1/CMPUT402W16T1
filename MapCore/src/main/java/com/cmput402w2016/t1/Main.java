@@ -1,6 +1,9 @@
 package com.cmput402w2016.t1;
 
+import com.cmput402w2016.t1.importer.Importer;
 import org.apache.commons.cli.*;
+
+import javax.xml.stream.XMLStreamException;
 
 public class Main {
     private static Options options = null;
@@ -44,7 +47,11 @@ public class Main {
 
             if (line.hasOption("i")) {
                 // Run the importer
-                System.out.println("Run the importer placeholder");
+                try {
+                    Importer.import_from_file(line.getOptionValue("i"));
+                } catch (XMLStreamException e) {
+                    e.printStackTrace();
+                }
             } else if (line.hasOption("w")) {
                 // Run the webapi
                 System.out.println("Run the webapi placeholder");
