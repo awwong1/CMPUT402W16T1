@@ -15,6 +15,7 @@ public class Main {
         options.addOption("i", "importer", true, "run the importer");
         options.addOption("w", "webapi", true, "run the web api server");
         options.addOption("s", "simulator", true, "run the simulator");
+        options.addOption("u", "usage", false, "display heap usage");
 
         try {
             CommandLineParser parser = new BasicParser();
@@ -22,6 +23,11 @@ public class Main {
 
             if (line.hasOption("h")) {
                 print_help();
+                return;
+            }
+
+            if (line.hasOption("u")) {
+                print_heap_usage();
                 return;
             }
 
@@ -71,5 +77,21 @@ public class Main {
         String footer = "\nPlease report issues at\nhttps://github.com/cmput402w2016/CMPUT402W16T1/issues";
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("MapCore", header, options, footer, true);
+    }
+
+    public static void print_heap_usage() {
+        int mb = 1024 * 1024;
+        // get Runtime instance
+        Runtime instance = Runtime.getRuntime();
+        System.out.println("***** Heap utilization statistics [MB] *****");
+        // available memory
+        System.out.println("Total Memory: " + instance.totalMemory() / mb);
+        // free memory
+        System.out.println("Free Memory: " + instance.freeMemory() / mb);
+        // used memory
+        System.out.println("Used Memory: "
+                + (instance.totalMemory() - instance.freeMemory()) / mb);
+        // Maximum available memory
+        System.out.println("Max Memory: " + instance.maxMemory() / mb);
     }
 }

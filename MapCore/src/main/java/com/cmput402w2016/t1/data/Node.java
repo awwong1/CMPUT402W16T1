@@ -37,16 +37,8 @@ public class Node {
         this.lat = Double.parseDouble(lat);
     }
 
-    public double getLat() {
-        return this.lat;
-    }
-
     public void setLon(String lon) {
         this.lon = Double.parseDouble(lon);
-    }
-
-    public double getLon() {
-        return this.lon;
     }
 
     public String computeGeohash() {
@@ -61,12 +53,9 @@ public class Node {
         tags.put(key, value);
     }
 
-    public Map<String, String> getTags() {
-        return this.tags;
-    }
-
     public String getTagsAsSerializedJSON() {
+        tags.put("id", String.valueOf(this.getId()));
         Gson gson = new Gson();
-        return gson.toJson(this.getTags());
+        return gson.toJson(tags);
     }
 }

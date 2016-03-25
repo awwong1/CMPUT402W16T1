@@ -1,5 +1,6 @@
 package com.cmput402w2016.t1.importer;
 
+import com.cmput402w2016.t1.Main;
 import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.Way;
 import org.apache.hadoop.conf.Configuration;
@@ -118,29 +119,36 @@ public class Importer {
                             if (s.equals("v")) {
                                 value = xmlStreamReader.getAttributeValue(i);
                             }
-                            if (!key.equals("") & !value.equals("")) {
-                                if (node != null) {
-                                    // This is a node tag
-                                    node.addTag(key, value);
-                                } else if (way != null) {
-                                    // This is a way tag
-                                    way.addTag(key, value);
-                                } else {
-                                    System.err.println(key + ": " + value + " not associated to node or way!");
-                                }
-                                key = "";
-                                value = "";
-                            }
                         }
+                        if (!key.equals("") && !value.equals("")) {
+                            if (node != null) {
+                                // This is a node tag
+                                node.addTag(key, value);
+                                System.out.println("Added Node Tag " + key + ": " + value + "for " + node.getId());
+                            } else if (way != null) {
+                                // This is a way tag
+                                way.addTag(key, value);
+                                System.out.println("Added Way Tag " + key + ": " + value + "for " + way.getId());
+                            }
+                            /*
+                            else {
+                                // This will barf because we don't care about 'relation' data types
+                                // System.err.println(key + ": " + value + " not associated to node or way!");
+                            }
+                            */
+                        }
+                        break;
                 }
 
             } else if (xmlStreamReader.isEndElement()) {
                 String s = xmlStreamReader.getLocalName();
-                if (s.equals("node") && node != null) {// Add to map
+                if (s.equals("node") && node != null) {
                     nodes.put(node.getId(), node);
+                    System.out.print("\rAdded Node " + String.valueOf(node.getId()));
                     node = null;
-                } else if (s.equals("way")) {
+                } else if (s.equals("way") && way != null) {
                     ways.add(way);
+                    System.out.print("\rAdded Way " + String.valueOf(way.getId()) + "     ");
                     way = null;
                 }
             }
@@ -150,8 +158,9 @@ public class Importer {
         System.out.println("Number of nodes read: " + nodes.size());
         System.out.println("Number of ways read: " + ways.size());
 
+        Main.print_heap_usage();
         import_nodes();
-
+        Main.print_heap_usage();
         import_ways();
 
         System.out.println("Finished!");
