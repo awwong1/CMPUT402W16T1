@@ -31,6 +31,13 @@ public class Importer {
     private static final HashMap<Long, Node> nodes = new HashMap<>();
     private static final ArrayList<Way> ways = new ArrayList<>();
 
+    /**
+     * Given the OSM XML file, parse out all of the nodes and ways and then run the import methods to
+     * put the values into HBase.
+     *
+     * @param filename path to the OSM XML file
+     * @throws XMLStreamException XML file is invalid
+     */
     public static void import_from_file(String filename) throws XMLStreamException {
         System.out.println("Starting...");
         System.out.println(configuration.toString());
@@ -39,15 +46,12 @@ public class Importer {
         try {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(new FileInputStream(filename));
         } catch (FileNotFoundException e) {
-            System.err.println("OSM XML file not found!");
-            e.printStackTrace();
-            return;
+            throw new XMLStreamException("OSM XML file not found!");
         }
 
         // Begin reading the XML
         Node node = null;
         Way way = null;
-
         while (xmlStreamReader.hasNext()) {
             if (xmlStreamReader.isStartElement()) {
                 // Start of Element, consider only the things we care about
@@ -100,7 +104,7 @@ public class Importer {
                             }
                         }
                         // Add node to way
-                        if (node_id != Double.MIN_VALUE) {
+                        if (node_id != Long.MIN_VALUE) {
                             way.addNode(nodes.get(node_id));
                         }
                         break;
@@ -125,35 +129,42 @@ public class Importer {
         System.out.println("Finished!");
     }
 
-    private static Table get_table(String raw_table_name) throws IOException {
-        Connection conn = ConnectionFactory.createConnection(configuration);
-        Admin admin = conn.getAdmin();
-        TableName[] table_names = admin.listTableNames(raw_table_name);
-        for (TableName table_name : table_names) {
-            if (table_name.getNameAsString().equals(raw_table_name)) {
-                return conn.getTable(table_name);
+    /**
+     * Get the table from the HBase connection's administrative interface.
+     *
+     * @param raw_table_name Name of the table
+     * @return Table matching the raw_table_name
+     */
+    private static Table get_table(String raw_table_name) {
+        try {
+            Connection conn = ConnectionFactory.createConnection(configuration);
+            Admin admin = conn.getAdmin();
+            TableName[] table_names = admin.listTableNames(raw_table_name);
+            for (TableName table_name : table_names) {
+                if (table_name.getNameAsString().equals(raw_table_name)) {
+                    return conn.getTable(table_name);
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * Import all of the nodes from the parsed XML into the HBase table as a node.
+     */
     private static void import_nodes() {
         System.out.println("Importing nodes...");
-        // Perform all the actions on the nodes
-        Table nodeTable = null;
-        try {
-            nodeTable = get_table("node");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Table nodeTable = get_table("node");
         if (nodeTable == null) {
             System.err.println("Node table failed to load.");
             return;
         }
 
-        List<Put> puts = new ArrayList<>();
         int counter = 0;
         int batch = 500;
+        List<Put> puts = new ArrayList<>();
         for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
@@ -183,21 +194,21 @@ public class Importer {
         System.out.println("Added all nodes!");
     }
 
+    /**
+     * Import all of the ways from the parsed XML into the HBase table as a segment.
+     * Ways are OSM values which consist of a list of nodes.
+     * Segments are custom values we use which represent a single node and its neighbors.
+     */
     private static void import_ways() {
-        // Perform all the actions on the ways
         System.out.println("Importing ways (segments)...");
-        int counter = 0;
-        int batch = 100;
-        Table segmentTable = null;
-        try {
-            segmentTable = get_table("segment");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Table segmentTable = get_table("segment");
         if (segmentTable == null) {
             System.err.println("Segment table failed to load.");
             return;
         }
+
+        int counter = 0;
+        int batch = 100;
         List<Put> puts = new ArrayList<>();
         for (Way way : ways) {
             Node previousNode = null;
