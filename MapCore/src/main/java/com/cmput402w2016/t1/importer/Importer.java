@@ -22,7 +22,6 @@ import java.util.List;
 public class Importer {
     // Values for the HBase Column Families and Keys
     private static final byte[] DATA = Bytes.toBytes("data");
-    private static final byte[] OSM_ID = Bytes.toBytes("osm_id");
     private static final byte[] TAGS = Bytes.toBytes("tags");
     private static final byte[] NODE = Bytes.toBytes("node");
 
@@ -205,7 +204,6 @@ public class Importer {
         for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
-            p.addColumn(DATA, OSM_ID, Bytes.toBytes(String.valueOf(node.getId())));
             p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsAsSerializedJSON()));
             puts.add(p);
             counter += 1;
