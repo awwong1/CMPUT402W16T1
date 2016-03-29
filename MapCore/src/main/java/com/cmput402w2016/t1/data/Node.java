@@ -78,10 +78,11 @@ public class Node {
         tags.put(key, value);
     }
 
-    public String getTagsAsSerializedJSON() {
-        tags.put("id", String.valueOf(this.getId()));
+    public String getTagsWithIDAsSerializedJSON() {
+        Map<String, String> m_tags = new HashMap<>(this.tags);
+        m_tags.put("id", String.valueOf(this.getId()));
         Gson gson = new Gson();
-        return gson.toJson(tags);
+        return gson.toJson(m_tags);
     }
 
 
@@ -96,9 +97,13 @@ public class Node {
         json.addProperty("lat", this.location.getLat());
         json.addProperty("lon", this.location.getLon());
         json.addProperty("osm_id", this.getId());
-        String tags = getTagsAsSerializedJSON();
-        json.add("tags", new JsonParser().parse(tags));
-        //json.addProperty("tags", tags);
+        JsonObject tags = new JsonObject();
+        for (Map.Entry<String, String> e : this.tags.entrySet()) {
+            String key = e.getKey();
+            String value = e.getValue();
+            tags.addProperty(key, value);
+        }
+        json.add("tags", tags);
         return json.toString();
     }
 

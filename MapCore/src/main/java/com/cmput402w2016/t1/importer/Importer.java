@@ -182,7 +182,7 @@ public class Importer {
         for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
             Put p = new Put(Bytes.toBytes(node.computeGeohash()));
-            p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsAsSerializedJSON()));
+            p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsWithIDAsSerializedJSON()));
             puts.add(p);
             counter += 1;
             if (counter % batch == 0) {
