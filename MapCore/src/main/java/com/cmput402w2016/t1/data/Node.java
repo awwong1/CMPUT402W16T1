@@ -187,9 +187,11 @@ public class Node {
                     Bytes.toBytes(osm_id)));
             ResultScanner rs = node_table.getScanner(scan);
             Result r = rs.next();
-            String actual_geohash = Bytes.toString(r.getRow());
-            String tags = Bytes.toString(r.getValue(Bytes.toBytes("data"), Bytes.toBytes("tags")));
-            return new Node(actual_geohash, tags);
+            if (r != null) {
+                String actual_geohash = Bytes.toString(r.getRow());
+                String tags = Bytes.toString(r.getValue(Bytes.toBytes("data"), Bytes.toBytes("tags")));
+                return new Node(actual_geohash, tags);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
