@@ -76,16 +76,34 @@ public class TrafficData {
         JsonElement raw_key = raw_json_object.get("key");
         JsonElement raw_value = raw_json_object.get("value");
 
-        JsonElement from_lat = raw_from.get("lat");
-        JsonElement from_lon = raw_from.get("lon");
-        JsonElement to_lat = raw_to.get("lat");
-        JsonElement to_lon = raw_to.get("lon");
+        Location from = null;
+        Location to = null;
+        try {
+            JsonElement from_lat = raw_from.get("lat");
+            JsonElement from_lon = raw_from.get("lon");
+            JsonElement to_lat = raw_to.get("lat");
+            JsonElement to_lon = raw_to.get("lon");
+            from = new Location(from_lat.getAsString(), from_lon.getAsString());
+            to = new Location(to_lat.getAsString(), to_lon.getAsString());
+        } catch (Exception ignored) {
+            // This is fine, lat and lon don't have to be provided as we also accept geohashes
+        }
+        try {
+            String from_geohash = raw_from.getAsString();
+            String to_geohash = raw_to.getAsString();
+            from = new Location(from_geohash);
+            to = new Location(to_geohash);
+        } catch (Exception ignored) {
+            // This is fine, perhaps from and to were set before
+        }
+        if (from == null || to == null) {
+            // guess not, return null lol
+            return null;
+        }
         long timestamp = raw_timestamp.getAsLong();
         String key = raw_key.getAsString();
         String value = raw_value.getAsString();
 
-        Location from = new Location(from_lat.getAsString(), from_lon.getAsString());
-        Location to = new Location(to_lat.getAsString(), to_lon.getAsString());
         return new TrafficData(from, to, timestamp, key, value);
     }
 }

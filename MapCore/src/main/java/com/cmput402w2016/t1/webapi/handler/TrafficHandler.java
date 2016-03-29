@@ -66,23 +66,30 @@ public class TrafficHandler implements HttpHandler {
                 JsonElement jsonElement = jsonParser.parse(rawContent);
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 TrafficData trafficData = TrafficData.json_to_traffic_data(jsonObject);
-                if (!trafficData.isValid()) {
+
+                if (trafficData == null || !trafficData.isValid()) {
                     Helper.malformedRequestResponse(httpExchange, 400, "Invalid traffic data posted");
                     httpExchange.close();
                     return;
                 }
 
-                String from_hash = Node.getClosestNodeFromLocation(
-                        trafficData.getFrom(), WebApi.get_node_table()).computeGeohash();
-                String to_hash = Node.getClosestNodeFromLocation(
-                        trafficData.getTo(), WebApi.get_node_table()).computeGeohash();
+                // Get the source node.
+                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_node_table());
+                String from_hash = from_node.computeGeohash();
+
+                // TODO: instead of getting just the closest node, get the closest node that's a neighbor of the source
+                Node to_node = Node.getClosestNodeFromLocation(trafficData.getTo(), WebApi.get_node_table());
+                String to_hash = to_node.computeGeohash();
+
                 String long_val = String.valueOf(trafficData.getTimestamp());
                 String key_val = trafficData.getKey();
                 String val_val = trafficData.getValue();
 
+                // Put the value into HBase
                 Put p = new Put(Bytes.toBytes(from_hash + "_" + to_hash));
                 p.addColumn(Bytes.toBytes("data"), Bytes.toBytes(key_val + "~" + long_val), Bytes.toBytes(val_val));
                 WebApi.get_traffic_table().put(p);
+
                 Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
                 httpExchange.close();
             }

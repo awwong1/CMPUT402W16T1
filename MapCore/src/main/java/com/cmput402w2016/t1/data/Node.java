@@ -13,7 +13,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NavigableMap;
 
 public class Node {
     // OSM ID of the Node
