@@ -3,9 +3,9 @@ package com.cmput402w2016.t1.importer;
 import com.cmput402w2016.t1.Main;
 import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.Way;
+import com.cmput402w2016.t1.util.Util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -166,33 +166,11 @@ public class Importer {
     }
 
     /**
-     * Get the table from the HBase connection's administrative interface.
-     *
-     * @param raw_table_name Name of the table
-     * @return Table matching the raw_table_name
-     */
-    private static Table get_table(String raw_table_name) {
-        try {
-            Connection conn = ConnectionFactory.createConnection(configuration);
-            Admin admin = conn.getAdmin();
-            TableName[] table_names = admin.listTableNames(raw_table_name);
-            for (TableName table_name : table_names) {
-                if (table_name.getNameAsString().equals(raw_table_name)) {
-                    return conn.getTable(table_name);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * Import all of the nodes from the parsed XML into the HBase table as a node.
      */
     private static void import_nodes() {
         System.out.println("Importing nodes...");
-        Table nodeTable = get_table("node");
+        Table nodeTable = Util.get_table("node");
         if (nodeTable == null) {
             System.err.println("Node table failed to load.");
             return;
@@ -235,7 +213,7 @@ public class Importer {
      */
     private static void import_ways() {
         System.out.println("Importing ways (segments)...");
-        Table segmentTable = get_table("segment");
+        Table segmentTable = Util.get_table("segment");
         if (segmentTable == null) {
             System.err.println("Segment table failed to load.");
             return;

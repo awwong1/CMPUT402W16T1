@@ -33,13 +33,7 @@ public class Helper {
         } else {
             response = "{\"error\": \"Could not serve request\"}";
         }
-        try {
-            http.sendResponseHeaders(responseCode, response.length());
-            OutputStream os = http.getResponseBody();
-            os.write(response.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        requestResponse(http, responseCode, response);
     }
 
     public static void requestResponse(HttpExchange http, int responseCode, String msg) {

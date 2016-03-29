@@ -1,6 +1,7 @@
 package com.cmput402w2016.t1;
 
 import com.cmput402w2016.t1.importer.Importer;
+import com.cmput402w2016.t1.webapi.WebApi;
 import org.apache.commons.cli.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -60,7 +61,8 @@ public class Main {
                 }
             } else if (line.hasOption("w")) {
                 // Run the webapi
-                System.out.println("Run the webapi placeholder");
+                String raw_port = line.getOptionValue("w");
+                WebApi.start_web_api(raw_port);
             } else if (line.hasOption("s")) {
                 // Run the simulator
                 System.out.println("Run the simulator placeholder");

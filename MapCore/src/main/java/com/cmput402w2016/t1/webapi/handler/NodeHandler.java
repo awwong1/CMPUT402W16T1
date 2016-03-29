@@ -1,7 +1,6 @@
 package com.cmput402w2016.t1.webapi.handler;
 
 import com.cmput402w2016.t1.webapi.Helper;
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -9,10 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class NodeHandler implements HttpHandler {
-    Gson gson;
-
-    public NodeHandler(Gson gson) {
-        this.gson = gson;
+    public NodeHandler() {
     }
 
     public void handle(HttpExchange httpExchange) throws IOException {

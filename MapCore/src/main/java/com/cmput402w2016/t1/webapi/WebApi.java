@@ -1,15 +1,10 @@
 package com.cmput402w2016.t1.webapi;
 
+import com.cmput402w2016.t1.util.Util;
 import com.cmput402w2016.t1.webapi.handler.NodeHandler;
 import com.cmput402w2016.t1.webapi.handler.TrafficHandler;
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
@@ -17,78 +12,47 @@ import java.net.InetSocketAddress;
 
 public class WebApi {
 
-    public static Table node_table = null;
-    public static Table segment_table = null;
-    public static Table traffic_table = null;
+    private static Table node_table = null;
+    private static Table segment_table = null;
+    private static Table traffic_table = null;
 
-    public static void main(String[] args) {
-        // This is how much code it takes if you do it the "Proper" way, without using the deprecated methods
-
-        try {
-            Configuration hbconf;
-            Connection conn;
-            Admin hba;
-            TableName[] tableNames;
-            Table[] tables;
-
-            // Create Configuration from HBaseConfiguration
-            hbconf = HBaseConfiguration.create();
-            // Create the Connection from the Configuration
-            conn = ConnectionFactory.createConnection(hbconf);
-            // Get the Admin object from the Connection
-            hba = conn.getAdmin();
-            // Get the table names
-            tableNames = hba.listTableNames();
-
-            tables = new Table[tableNames.length];
-            int tableIndex = 0;
-            for (TableName tableName : tableNames) {
-                Table table;
-                table = conn.getTable(tableName);
-                tables[tableIndex] = table;
-                tableIndex += 1;
-            }
-            for (Table table : tables) {
-                String tableName = table.getName().getQualifierAsString();
-                switch (tableName) {
-                    case "node":
-                        node_table = table;
-                        break;
-                    case "segment":
-                        segment_table = table;
-                        break;
-                    case "traffic":
-                        traffic_table = table;
-                        break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
+    public static void start_web_api(String raw_port) {
+        if (!StringUtils.isNumeric(raw_port)) {
+            System.err.println(raw_port + " is not a valid port integer.");
+            return;
         }
 
+        System.out.println("Initializing HBase tables");
+        node_table = Util.get_table("node");
+        segment_table = Util.get_table("segment");
+        traffic_table = Util.get_table("traffic");
         if (node_table == null || segment_table == null || traffic_table == null) {
             System.err.println("One or more required tables does not exist!");
-            System.exit(1);
+            return;
         }
 
         // Start up the HTTP Server
         try {
-            HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-            Gson gson = new Gson();
-
-            // Get Handlers
-            server.createContext("/node", new NodeHandler(gson));
-
-            // Post Handlers
-            server.createContext("/traffic", new TrafficHandler(gson));
-
-            // Start Server
+            HttpServer server = HttpServer.create(new InetSocketAddress(Integer.valueOf(raw_port)), 0);
+            server.createContext("/node", new NodeHandler());
+            server.createContext("/traffic", new TrafficHandler());
             server.setExecutor(null);
             server.start();
             System.out.println("Server has started.");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Table get_node_table() {
+        return WebApi.node_table;
+    }
+
+    public static Table get_segment_table() {
+        return WebApi.segment_table;
+    }
+
+    public static Table get_traffic_table() {
+        return WebApi.traffic_table;
     }
 }
