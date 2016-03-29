@@ -1,6 +1,7 @@
 package com.cmput402w2016.t1.data;
 
 import com.github.davidmoten.geo.GeoHash;
+import com.github.davidmoten.geo.LatLong;
 
 /**
  * Location should not be called directly and should only be referenced within the Node class
@@ -17,6 +18,12 @@ class Location {
     Location(String lat, String lon) {
         this.lat = Double.parseDouble(lat);
         this.lon = Double.parseDouble(lon);
+    }
+
+    Location(String geohash) {
+        LatLong latlong = GeoHash.decodeHash(geohash);
+        this.lat = latlong.getLat();
+        this.lon = latlong.getLon();
     }
 
     Double getLat() {

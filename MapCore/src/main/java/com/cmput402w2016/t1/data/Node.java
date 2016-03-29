@@ -2,6 +2,9 @@ package com.cmput402w2016.t1.data;
 
 import com.cmput402w2016.t1.util.Util;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -18,6 +21,22 @@ public class Node {
     private Map<String, String> tags = new HashMap<>();
 
     public Node() {
+    }
+
+    public Node(String geohash, String serialized_tags) {
+        this.location = new Location(geohash);
+        JsonParser jsonParser = new JsonParser();
+        JsonElement jsonElement = jsonParser.parse(serialized_tags);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            String key = entry.getKey();
+            JsonElement val = entry.getValue();
+            if (key.equals("id")) {
+                this.id = val.getAsLong();
+            } else {
+                this.tags.put(key, val.toString());
+            }
+        }
     }
 
     public void setId(String id) {
@@ -62,6 +81,18 @@ public class Node {
         return gson.toJson(tags);
     }
 
+    public String toSerializedJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("geohash", this.location.computeGeohash());
+        json.addProperty("lat", this.location.getLat());
+        json.addProperty("lon", this.location.getLon());
+        json.addProperty("id", this.getId());
+        String tags = getTagsAsSerializedJSON();
+        json.add("tags", new JsonParser().parse(tags));
+        //json.addProperty("tags", tags);
+        return json.toString();
+    }
+
     /**
      * For a given node, return its neighbor nodes.
      *
@@ -69,50 +100,58 @@ public class Node {
      * @return
      */
     public Node[] getNeighborGeohashes(Table segment_table) {
-        // TODO
+        // TODO get the neighbor geohashes from the segment table
         return new Node[]{};
     }
 
     public String getClosestNeighborGeohash(Table segment_table, String neighbor_hash) {
-        // TODO
+        // TODO get the closest neighbor geohash
         return "";
     }
 
-    /**
-     * Given a location, return the closest node to that given location.
-     *
-     * @param location   Location object representing where
-     * @param node_table HBase table containing the nodes
-     * @return
-     */
-    public static Node getClosestNode(Location location, Table node_table) {
-        String geoHash = location.computeGeohash();
-        while (geoHash != null) {
-            Scan scan = new Scan();
-            scan.setRowPrefixFilter(geoHash.getBytes());
-            try {
-                ResultScanner rs = node_table.getScanner(scan);
-                Result result = rs.next();
-                if (result != null) {
-                    return getNodeFromGeohash(new String(result.getRow()), node_table);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            geoHash = Util.shorten(geoHash);
-        }
-        return new Node();
+    public static Node getClosestNodeFromLocation(Location location, Table node_table) {
+        return getClosestNodeFromGeohash(location.computeGeohash(), node_table);
     }
 
-    public static Node getNodeFromGeohash(String geohash, Table node_table) {
-        // TODO
-        Get g = new Get(Bytes.toBytes(geohash));
+    /**
+     * Given a lat and lon, return the closest node to that given location.
+     *
+     * @param lat        String representing lat
+     * @param lon        String representing lon
+     * @param node_table HBase table containing the nodes
+     * @return Node object, null if node doesn't exist
+     */
+    public static Node getClosestNodeFromLatLon(String lat, String lon, Table node_table) {
+        Location location = new Location(lat, lon);
+        String geoHash = location.computeGeohash();
+        return getClosestNodeFromGeohash(geoHash, node_table);
+    }
+
+    /**
+     * Take a geohash, get the node object with all fields populated.
+     *
+     * @param original_geohash String geohash representing the node exactly
+     * @param node_table       HBase table where all the nodes are stored
+     * @return Node object, null if node doesn't exist
+     */
+    public static Node getClosestNodeFromGeohash(String original_geohash, Table node_table) {
+        String geohash = original_geohash;
         try {
-            Result r = node_table.get(g);
-            System.out.println(r.toString());
-        } catch (IOException e) {
+            while (geohash != null) {
+                Scan scan = new Scan();
+                scan.setRowPrefixFilter(Bytes.toBytes(geohash));
+                ResultScanner rs = node_table.getScanner(scan);
+                Result r = rs.next();
+                if (r != null) {
+                    String actual_geohash = Bytes.toString(r.getRow());
+                    String tags = Bytes.toString(r.getValue(Bytes.toBytes("data"), Bytes.toBytes("tags")));
+                    return new Node(actual_geohash, tags);
+                }
+                geohash = Util.shorten(geohash);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Node();
+        return null;
     }
 }
