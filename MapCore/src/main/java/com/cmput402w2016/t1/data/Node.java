@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
@@ -81,12 +83,18 @@ public class Node {
         return gson.toJson(tags);
     }
 
+
+    /**
+     * Return the node as a serialized json string, matching the documentation specified in the project wiki
+     *
+     * @return String, current node as a serialized json object
+     */
     public String toSerializedJson() {
         JsonObject json = new JsonObject();
         json.addProperty("geohash", this.location.computeGeohash());
         json.addProperty("lat", this.location.getLat());
         json.addProperty("lon", this.location.getLon());
-        json.addProperty("id", this.getId());
+        json.addProperty("osm_id", this.getId());
         String tags = getTagsAsSerializedJSON();
         json.add("tags", new JsonParser().parse(tags));
         //json.addProperty("tags", tags);
@@ -109,6 +117,13 @@ public class Node {
         return "";
     }
 
+    /**
+     * Given a location object, return the closest node to that location.
+     *
+     * @param location   Location object representing the lat and lon
+     * @param node_table HBase table containing the nodes
+     * @return Node object, null if node doesn't exist
+     */
     public static Node getClosestNodeFromLocation(Location location, Table node_table) {
         return getClosestNodeFromGeohash(location.computeGeohash(), node_table);
     }
@@ -130,7 +145,7 @@ public class Node {
     /**
      * Take a geohash, get the node object with all fields populated.
      *
-     * @param original_geohash String geohash representing the node exactly
+     * @param original_geohash String geohash representing the node (substring search)
      * @param node_table       HBase table where all the nodes are stored
      * @return Node object, null if node doesn't exist
      */
@@ -150,6 +165,33 @@ public class Node {
                 geohash = Util.shorten(geohash);
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Take an osm node id, get the node object with all fields populated
+     *
+     * @param osm_id     String osm id matching the node exactly
+     * @param node_table HBase table where all the nodes are stored
+     * @return Node object, null if node doesn't exist
+     */
+    public static Node getNodeFromID(String osm_id, Table node_table) {
+        try {
+            Scan scan = new Scan();
+            scan.setFilter(new SingleColumnValueFilter(
+                    Bytes.toBytes("data"),
+                    Bytes.toBytes("osm_id"),
+                    CompareFilter.CompareOp.EQUAL,
+                    Bytes.toBytes(osm_id)));
+            ResultScanner rs = node_table.getScanner(scan);
+            Result r = rs.next();
+            String actual_geohash = Bytes.toString(r.getRow());
+            String tags = Bytes.toString(r.getValue(Bytes.toBytes("data"), Bytes.toBytes("tags")));
+            return new Node(actual_geohash, tags);
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

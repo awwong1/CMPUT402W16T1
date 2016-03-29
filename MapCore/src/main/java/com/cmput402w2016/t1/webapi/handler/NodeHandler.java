@@ -27,9 +27,15 @@ public class NodeHandler implements HttpHandler {
             String query = httpExchange.getRequestURI().getRawQuery();
             Map<String, String> stringStringMap = Helper.queryToMap(query);
             if (stringStringMap.containsKey("id")) {
-                // TODO: Query by OSM Id
-                Double osmId = Double.parseDouble(stringStringMap.get("id"));
-
+                String osmId = stringStringMap.get("id");
+                Node node = Node.getNodeFromID(osmId, WebApi.get_node_table());
+                if (node != null) {
+                    setNode(node, httpExchange);
+                    return;
+                }
+                Helper.malformedRequestResponse(httpExchange, 404, "No node matches provided osm id");
+                httpExchange.close();
+                return;
             } else if (stringStringMap.containsKey("geohash")) {
                 String geohash = stringStringMap.get("geohash");
                 Node node = Node.getClosestNodeFromGeohash(geohash, WebApi.get_node_table());
