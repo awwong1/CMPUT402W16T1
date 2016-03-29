@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 
 public class Node {
     // OSM ID of the Node
@@ -99,17 +100,6 @@ public class Node {
         json.add("tags", new JsonParser().parse(tags));
         //json.addProperty("tags", tags);
         return json.toString();
-    }
-
-    /**
-     * For a given node, return its neighbor nodes.
-     *
-     * @param segment_table HBase Table of node segments
-     * @return
-     */
-    public Node[] getNeighborGeohashes(Table segment_table) {
-        // TODO get the neighbor geohashes from the segment table
-        return new Node[]{};
     }
 
     public String getClosestNeighborGeohash(Table segment_table, String neighbor_hash) {

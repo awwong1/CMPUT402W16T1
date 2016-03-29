@@ -2,6 +2,7 @@ package com.cmput402w2016.t1.webapi;
 
 import com.cmput402w2016.t1.util.Util;
 import com.cmput402w2016.t1.webapi.handler.NodeHandler;
+import com.cmput402w2016.t1.webapi.handler.SegmentHandler;
 import com.cmput402w2016.t1.webapi.handler.TrafficHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,7 @@ public class WebApi {
             HttpServer server = HttpServer.create(new InetSocketAddress(Integer.valueOf(raw_port)), 0);
             server.createContext("/node", new NodeHandler());
             server.createContext("/traffic", new TrafficHandler());
+            server.createContext("/segment", new SegmentHandler());
             server.setExecutor(null);
             server.start();
             System.out.println("Server has started.");

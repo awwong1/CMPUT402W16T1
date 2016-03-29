@@ -15,6 +15,9 @@ public class Helper {
      */
     public static Map<String, String> queryToMap(String query) {
         Map<String, String> result = new HashMap<>();
+        if (query == null) {
+            return result;
+        }
         for (String param : query.split("&")) {
             String pair[] = param.split("=");
             if (pair.length > 1) {
@@ -38,7 +41,7 @@ public class Helper {
 
     public static void requestResponse(HttpExchange http, int responseCode, String msg) {
         try {
-            http.sendResponseHeaders(responseCode, msg.length());
+            http.sendResponseHeaders(responseCode, msg.getBytes().length);
             OutputStream os = http.getResponseBody();
             os.write(msg.getBytes());
         } catch (IOException e) {

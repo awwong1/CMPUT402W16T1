@@ -47,6 +47,7 @@ public class TrafficHandler implements HttpHandler {
      *
      * @param httpExchange object containing the request, http methods, http body
      */
+    @Override
     public void handle(HttpExchange httpExchange) {
         // GET, PUT, POST, DELETE
         // Currently only POST is supported
@@ -84,11 +85,11 @@ public class TrafficHandler implements HttpHandler {
                 WebApi.get_traffic_table().put(p);
                 Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
                 httpExchange.close();
-            } else {
-                // Submitted a method other than POST
-                Helper.malformedRequestResponse(httpExchange, 400, "Currently only creation supported through POST");
-                httpExchange.close();
             }
+            // Submitted a method other than POST
+            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the traffic api");
+            httpExchange.close();
+
         } catch (Exception e) {
             Helper.malformedRequestResponse(httpExchange, 400, e.getMessage());
             httpExchange.close();
