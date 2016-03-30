@@ -70,7 +70,7 @@ public class Node {
     }
 
     public String computeGeohash() {
-        return location.computeGeohash();
+        return location.getGeohash();
     }
 
     public void addTag(String key, String value) {
@@ -92,9 +92,9 @@ public class Node {
      */
     public String toSerializedJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("geohash", this.location.computeGeohash());
-        json.addProperty("lat", this.location.getLat());
-        json.addProperty("lon", this.location.getLon());
+        json.addProperty("geohash", this.computeGeohash());
+        json.addProperty("lat", this.getLat());
+        json.addProperty("lon", this.getLon());
         json.addProperty("osm_id", this.getId());
         JsonObject tags = new JsonObject();
         for (Map.Entry<String, String> e : this.tags.entrySet()) {
@@ -106,9 +106,27 @@ public class Node {
         return json.toString();
     }
 
-    public String getClosestNeighborGeohash(Table segment_table, String neighbor_hash) {
-        // TODO get the closest neighbor geohash
-        return "";
+    /**
+     * Return the string geohash of the closest neighbor to the actual specified location.
+     *
+     * @param segment_table HBase table containing the
+     * @param actual        Location that the user provided
+     * @return String geohash representing the closet neighbor to the current node. Null if no neighbors.
+     */
+    public String getClosestNeighborGeohash(Table segment_table, Location actual) {
+        String[] neighbors = Segment.getNeighborGeohashesAsGeohashArray(this.computeGeohash(), segment_table);
+        String closest_neighbor = null;
+        if (neighbors != null) {
+            double distance = Double.MAX_VALUE;
+            for (String neighbor : neighbors) {
+                double temp_distance = actual.distance(new Location(neighbor));
+                if (Double.compare(temp_distance, distance) < 0) {
+                    distance = temp_distance;
+                    closest_neighbor = neighbor;
+                }
+            }
+        }
+        return closest_neighbor;
     }
 
     /**
@@ -119,7 +137,7 @@ public class Node {
      * @return Node object, null if node doesn't exist
      */
     public static Node getClosestNodeFromLocation(Location location, Table node_table) {
-        return getClosestNodeFromGeohash(location.computeGeohash(), node_table);
+        return getClosestNodeFromGeohash(location.getGeohash(), node_table);
     }
 
     /**
@@ -132,7 +150,7 @@ public class Node {
      */
     public static Node getClosestNodeFromLatLon(String lat, String lon, Table node_table) {
         Location location = new Location(lat, lon);
-        String geoHash = location.computeGeohash();
+        String geoHash = location.getGeohash();
         return getClosestNodeFromGeohash(geoHash, node_table);
     }
 

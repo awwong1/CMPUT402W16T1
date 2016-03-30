@@ -4,7 +4,6 @@ import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.TrafficData;
 import com.cmput402w2016.t1.webapi.Helper;
 import com.cmput402w2016.t1.webapi.WebApi;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -53,7 +52,6 @@ public class TrafficHandler implements HttpHandler {
         // Currently only POST is supported
         try {
             String requestMethod = httpExchange.getRequestMethod();
-            System.out.println(requestMethod);
             if (requestMethod.equalsIgnoreCase("POST")) {
                 String rawContent = read_post_body(httpExchange);
                 if (rawContent.equals("")) {
@@ -77,20 +75,29 @@ public class TrafficHandler implements HttpHandler {
                 Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_node_table());
                 String from_hash = from_node.computeGeohash();
 
-                // TODO: instead of getting just the closest node, get the closest node that's a neighbor of the source
-                Node to_node = Node.getClosestNodeFromLocation(trafficData.getTo(), WebApi.get_node_table());
-                String to_hash = to_node.computeGeohash();
+                // Get the closet neighbor geohash.
+                String to_hash = from_node.getClosestNeighborGeohash(WebApi.get_segment_table(), trafficData.getTo());
 
                 String long_val = String.valueOf(trafficData.getTimestamp());
                 String key_val = trafficData.getKey();
-                String val_val = trafficData.getValue();
+                Double val_val = trafficData.getValue();
 
                 // Put the value into HBase
+                // TODO: Partition based on hour?
                 Put p = new Put(Bytes.toBytes(from_hash + "_" + to_hash));
-                p.addColumn(Bytes.toBytes("data"), Bytes.toBytes(key_val + "~" + long_val), Bytes.toBytes(val_val));
+                p.addColumn(Bytes.toBytes("data"),
+                        Bytes.toBytes(key_val + "~" + long_val),
+                        Bytes.toBytes(String.valueOf(val_val)));
                 WebApi.get_traffic_table().put(p);
 
-                Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
+                // This takes the the from: and to: keys and nests the location within, not matching our api
+                // Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
+                Helper.requestResponse(httpExchange, 201, trafficData.to_serialized_json());
+                httpExchange.close();
+                return;
+            } else if (requestMethod.equalsIgnoreCase("GET")) {
+                // TODO implement GET
+                Helper.malformedRequestResponse(httpExchange, 500, "Traffic GET currently not implemented");
                 httpExchange.close();
             }
             // Submitted a method other than POST

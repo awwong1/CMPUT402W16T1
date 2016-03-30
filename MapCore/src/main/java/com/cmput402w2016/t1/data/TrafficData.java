@@ -2,17 +2,16 @@ package com.cmput402w2016.t1.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.math.NumberUtils;
 
 public class TrafficData {
-    private Location from;
-    private Location to;
+    private Location from = null;
+    private Location to = null;
     // This is supposed to be an epoch time (seconds since epoch), not java's milliseconds
-    private long timestamp;
-    private String key;
-    private String value;
+    private Long timestamp = null;
+    private String key = null;
+    private Double value = null;
 
-    public TrafficData(Location from, Location to, long timestamp, String key, String value) {
+    public TrafficData(Location from, Location to, long timestamp, String key, Double value) {
         this.from = from;
         this.to = to;
         this.timestamp = timestamp;
@@ -27,9 +26,9 @@ public class TrafficData {
         TrafficData td = (TrafficData) object;
         if (!this.from.equals(td.from)) return false;
         if (!this.to.equals(td.to)) return false;
-        if (this.timestamp != td.timestamp) return false;
+        if (Long.compare(this.timestamp, td.timestamp) != 0) return false;
         if (this.key == null ? td.key != null : !this.key.equals(td.key)) return false;
-        if (this.value == null ? td.value != null : !this.value.equals(td.value)) return false;
+        if (Double.compare(this.value, td.value) != 0) return false;
         return true;
     }
 
@@ -39,8 +38,16 @@ public class TrafficData {
     }
 
     public boolean isValid() {
-        // TODO, no timestamps greater than one hour in the future (maybe?)
-        return from.isValid() && to.isValid() && timestamp > 0 && NumberUtils.isNumber(value) && !key.contains("~");
+        boolean not_null = from != null && to != null && timestamp != null && key != null && value != null;
+        if (!not_null) {
+            return false;
+        }
+        boolean from_valid = from.isValid();
+        boolean to_valid = to.isValid();
+        long curr_epoch_seconds = System.currentTimeMillis() / 1000L;
+        boolean timestamp_valid = this.getTimestamp() < (curr_epoch_seconds + 3600);
+        boolean key_valid = !key.contains("~");
+        return from_valid && to_valid && timestamp_valid && key_valid;
     }
 
     public Location getFrom() {
@@ -59,7 +66,7 @@ public class TrafficData {
         return key;
     }
 
-    public String getValue() {
+    public Double getValue() {
         return value;
     }
 
@@ -70,19 +77,19 @@ public class TrafficData {
      * @return TrafficData object matching the raw_json_object
      */
     public static TrafficData json_to_traffic_data(JsonObject raw_json_object) {
-        JsonObject raw_from = raw_json_object.get("from").getAsJsonObject();
-        JsonObject raw_to = raw_json_object.get("to").getAsJsonObject();
-        JsonElement raw_timestamp = raw_json_object.get("time");
+        JsonElement raw_from = raw_json_object.get("from");
+        JsonElement raw_to = raw_json_object.get("to");
+        JsonElement raw_timestamp = raw_json_object.get("timestamp");
         JsonElement raw_key = raw_json_object.get("key");
         JsonElement raw_value = raw_json_object.get("value");
 
         Location from = null;
         Location to = null;
         try {
-            JsonElement from_lat = raw_from.get("lat");
-            JsonElement from_lon = raw_from.get("lon");
-            JsonElement to_lat = raw_to.get("lat");
-            JsonElement to_lon = raw_to.get("lon");
+            JsonElement from_lat = raw_from.getAsJsonObject().get("lat");
+            JsonElement from_lon = raw_from.getAsJsonObject().get("lon");
+            JsonElement to_lat = raw_to.getAsJsonObject().get("lat");
+            JsonElement to_lon = raw_to.getAsJsonObject().get("lon");
             from = new Location(from_lat.getAsString(), from_lon.getAsString());
             to = new Location(to_lat.getAsString(), to_lon.getAsString());
         } catch (Exception ignored) {
@@ -102,8 +109,18 @@ public class TrafficData {
         }
         long timestamp = raw_timestamp.getAsLong();
         String key = raw_key.getAsString();
-        String value = raw_value.getAsString();
+        Double value = raw_value.getAsDouble();
 
         return new TrafficData(from, to, timestamp, key, value);
+    }
+
+    public String to_serialized_json() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("from", this.from.getGeohash());
+        jsonObject.addProperty("to", this.to.getGeohash());
+        jsonObject.addProperty("timestamp", this.getTimestamp());
+        jsonObject.addProperty("key", this.getKey());
+        jsonObject.addProperty("value", this.getValue());
+        return jsonObject.toString();
     }
 }
