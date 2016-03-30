@@ -99,6 +99,7 @@ public class TrafficHandler implements HttpHandler {
                 // TODO implement GET
                 Helper.malformedRequestResponse(httpExchange, 500, "Traffic GET currently not implemented");
                 httpExchange.close();
+                return;
             }
             // Submitted a method other than POST
             Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the traffic api");
