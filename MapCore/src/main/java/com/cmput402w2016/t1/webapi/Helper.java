@@ -40,6 +40,7 @@ public class Helper {
     }
 
     public static void requestResponse(HttpExchange http, int responseCode, String msg) {
+        System.out.println(msg);
         try {
             http.sendResponseHeaders(responseCode, msg.getBytes().length);
             OutputStream os = http.getResponseBody();
