@@ -15,7 +15,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 public class TrafficHandler implements HttpHandler {
     public TrafficHandler() {
@@ -73,7 +72,7 @@ public class TrafficHandler implements HttpHandler {
                 }
 
                 // Get the source node.
-                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_segment_table());
+                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_node_table());
                 String from_hash = from_node.computeGeohash();
 
                 // Get the closet neighbor geohash.
