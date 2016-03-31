@@ -34,15 +34,7 @@ public class Segment {
         }
         return null;
     }
-
-    public static String getNeighborGeohashesAsJSON(String start_node_geohash, Table segment_table) {
-        Map<String, String> hmap = getNeighborGeohashesAsStringMap(start_node_geohash, segment_table);
-        if (hmap == null) {
-            return null;
-        }
-        return transformSegmentMapToJsonObject(hmap).toString();
-    }
-
+    
     public static String[] getNeighborGeohashesAsGeohashArray(String start_node_geohash, Table segment_table) {
         Map<String, String> hmap = getNeighborGeohashesAsStringMap(start_node_geohash, segment_table);
         if (hmap == null) {
@@ -51,8 +43,9 @@ public class Segment {
         return hmap.keySet().toArray(new String[]{});
     }
 
-    public static JsonObject transformSegmentMapToJsonObject(Map<String, String> hmap) {
+    public static JsonObject transformSegmentMapToJsonObject(String startNode, Map<String, String> hmap) {
         JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("from", startNode);
         for (Map.Entry<String, String> e : hmap.entrySet()) {
             String key = e.getKey();
             String value = e.getValue();
@@ -72,6 +65,7 @@ public class Segment {
                 ResultScanner rs = segment_table.getScanner(scan);
                 Result r = rs.next();
                 if (r != null) {
+                    String start_node = Bytes.toString(r.getRow());
                     NavigableMap<byte[], byte[]> nm = r.getFamilyMap(Bytes.toBytes("node"));
                     if (nm != null) {
                         Map<String, String> hmap = new HashMap<>();
@@ -80,7 +74,7 @@ public class Segment {
                             String value = Bytes.toString(entry.getValue());
                             hmap.put(key, value);
                         }
-                        return transformSegmentMapToJsonObject(hmap).toString();
+                        return transformSegmentMapToJsonObject(start_node, hmap).toString();
                     }
                 }
                 geohash = Util.shorten(geohash);
