@@ -24,6 +24,14 @@ public class SegmentHandler implements HttpHandler {
                     Helper.requestResponse(httpExchange, 200, neighbors);
                     httpExchange.close();
                     return;
+                } else if (stringStringMap.containsKey("lat") && stringStringMap.containsKey("lon")) {
+                    String lat = stringStringMap.get("lat");
+                    String lon = stringStringMap.get("lon");
+                    String neighbors = Segment.getClosestSegmentFromLatLon(lat, lon, WebApi.get_segment_table());
+                    Helper.requestResponse(httpExchange, 200, neighbors);
+                    httpExchange.close();
+                    return;
+
                 }
             }
             Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the segment api");

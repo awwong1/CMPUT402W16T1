@@ -90,4 +90,8 @@ public class Segment {
         }
         return null;
     }
+
+    public static String getClosestSegmentFromLatLon(String lat, String lon, Table segment_table) {
+        return getClosestSegmentFromGeohash(new Location(lat, lon).getGeohash(), segment_table);
+    }
 }
