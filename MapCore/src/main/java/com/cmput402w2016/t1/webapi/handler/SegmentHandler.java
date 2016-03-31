@@ -20,12 +20,7 @@ public class SegmentHandler implements HttpHandler {
                 Map<String, String> stringStringMap = Helper.queryToMap(query);
                 if (stringStringMap.containsKey("geohash")) {
                     String geohash = stringStringMap.get("geohash");
-                    String neighbors = Segment.getNeighborGeohashesAsJSON(geohash, WebApi.get_segment_table());
-                    if (neighbors == null) {
-                        Helper.malformedRequestResponse(httpExchange, 400, "No segment data matched provided geohash");
-                        httpExchange.close();
-                        return;
-                    }
+                    String neighbors = Segment.getClosestSegmentFromGeohash(geohash, WebApi.get_segment_table());
                     Helper.requestResponse(httpExchange, 200, neighbors);
                     httpExchange.close();
                     return;
