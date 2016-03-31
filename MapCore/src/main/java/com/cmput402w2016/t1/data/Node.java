@@ -132,42 +132,42 @@ public class Node {
     /**
      * Given a location object, return the closest node to that location.
      *
-     * @param location   Location object representing the lat and lon
-     * @param node_table HBase table containing the nodes
+     * @param location      Location object representing the lat and lon
+     * @param segment_table HBase table containing the segments
      * @return Node object, null if node doesn't exist
      */
-    public static Node getClosestNodeFromLocation(Location location, Table node_table) {
-        return getClosestNodeFromGeohash(location.getGeohash(), node_table);
+    public static Node getClosestNodeFromLocation(Location location, Table segment_table) {
+        return getClosestNodeFromGeohash(location.getGeohash(), segment_table);
     }
 
     /**
      * Given a lat and lon, return the closest node to that given location.
      *
-     * @param lat        String representing lat
-     * @param lon        String representing lon
-     * @param node_table HBase table containing the nodes
+     * @param lat           String representing lat
+     * @param lon           String representing lon
+     * @param segment_table HBase table containing the segments
      * @return Node object, null if node doesn't exist
      */
-    public static Node getClosestNodeFromLatLon(String lat, String lon, Table node_table) {
+    public static Node getClosestNodeFromLatLon(String lat, String lon, Table segment_table) {
         Location location = new Location(lat, lon);
         String geoHash = location.getGeohash();
-        return getClosestNodeFromGeohash(geoHash, node_table);
+        return getClosestNodeFromGeohash(geoHash, segment_table);
     }
 
     /**
      * Take a geohash, get the node object with all fields populated.
      *
      * @param original_geohash String geohash representing the node (substring search)
-     * @param node_table       HBase table where all the nodes are stored
+     * @param segment_table    HBase table where all the segments are stored
      * @return Node object, null if node doesn't exist
      */
-    public static Node getClosestNodeFromGeohash(String original_geohash, Table node_table) {
+    public static Node getClosestNodeFromGeohash(String original_geohash, Table segment_table) {
         String geohash = original_geohash;
         try {
             while (geohash != null) {
                 Scan scan = new Scan();
                 scan.setRowPrefixFilter(Bytes.toBytes(geohash));
-                ResultScanner rs = node_table.getScanner(scan);
+                ResultScanner rs = segment_table.getScanner(scan);
                 Result r = rs.next();
                 if (r != null) {
                     String actual_geohash = Bytes.toString(r.getRow());
