@@ -18,7 +18,7 @@ public class TrafficDataTest extends TestCase {
                 "\"lat\": 53.5372532" +
                 "}," +
                 "\"key\": \"KEY\"," +
-                "\"time\": 1459269834," +
+                "\"timestamp\": 1459269834," +
                 "\"value\" : 34.25" +
                 "}";
         JsonParser jsonParser = new JsonParser();
@@ -26,8 +26,8 @@ public class TrafficDataTest extends TestCase {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         TrafficData trafficData = TrafficData.json_to_traffic_data(jsonObject);
 
-        Location from = new Location("53.5372492", "-113.506595");
-        Location to = new Location("53.5372532", "-113.5047471");
+        Node from = new Node(53.5372492, -113.506595);
+        Node to = new Node(53.5372532, -113.5047471);
         String key = "KEY";
         Double value = 34.25;
         long time = 1459269834;
@@ -48,8 +48,8 @@ public class TrafficDataTest extends TestCase {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         TrafficData trafficData = TrafficData.json_to_traffic_data(jsonObject);
 
-        Location from = new Location("c3x2945j0ds7");
-        Location to = new Location("c3x294hm5eq7");
+        Node from = new Node("c3x2945j0ds7");
+        Node to = new Node("c3x294hm5eq7");
         String key = "KEY";
         Double value = 40.0;
         long time = 1459269834;
@@ -58,8 +58,8 @@ public class TrafficDataTest extends TestCase {
     }
 
     public void test_traffic_data_valid() throws Exception {
-        Location from = new Location("53.5372492", "-113.506595");
-        Location to = new Location("53.5372532", "-113.5047471");
+        Node from = new Node(53.5372492, -113.506595);
+        Node to = new Node(53.5372532, -113.5047471);
         String key = "KEY";
         Double value = 34.25;
         long time = 1459269834;

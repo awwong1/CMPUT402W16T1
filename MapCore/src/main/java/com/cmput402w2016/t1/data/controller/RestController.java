@@ -45,13 +45,13 @@ public class RestController implements DatabaseController {
 
     public void postTraffic(TrafficData traffic) {
         try {
-            // Set Data
+            // Set SimulatorDataModel
             PostMethod trafficPost = new PostMethod(uri.concat("/traffic"));
 
             StringRequestEntity entity = new StringRequestEntity(traffic.to_serialized_json(), "application/json", "UTF-8");
             trafficPost.setRequestEntity(entity);
 
-            // Send Data
+            // Send SimulatorDataModel
             client.executeMethod(trafficPost);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

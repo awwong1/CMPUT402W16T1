@@ -1,5 +1,6 @@
 package com.cmput402w2016.t1.simulator;
 
+import com.cmput402w2016.t1.converter.SimulatorData;
 import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.TrafficData;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -9,23 +10,17 @@ import org.joda.time.DateTimeZone;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
  * Holds and represents the models and data that we're simulating data for, in reference to a segment
  */
-public class Data {
-    private Map<String, Integer> traffic;
+public class SimulatorDataModel extends SimulatorData {
     private transient Map<Integer, NormalDistribution> carsPerHour;
-    private String source;
-    private Node from;
-    private Node to;
 
-    public Data(String source, Node from, Node to) {
-        this.source = source;
-        this.from = from;
-        this.to = to;
-        traffic = new HashMap<>();
+    public SimulatorDataModel(String source, Node from, Node to) {
+        super(from, to, source);
     }
 
     public void generateModel() {
@@ -38,25 +33,24 @@ public class Data {
      */
     public void generateCarsPerHourModel() {
         // Get statistical data for counts at each hour
-        Map<Integer, SummaryStatistics> funstuff = new HashMap<Integer, SummaryStatistics>();
+        Map<Integer, SummaryStatistics> summaries = new HashMap<>();
         for (Map.Entry<String, Integer> count : traffic.entrySet()) {
             // Java stores times in milliseconds since epoch, hence the *1000.
             String key = count.getKey();
-            System.out.println("Key: " + key);
-            long timestamp = Long.parseLong(key, 10) * 1000;
+            long timestamp = Long.parseLong(key) * 1000;
             int cars_per_hour = count.getValue();
 
             DateTime time = new DateTime(timestamp, DateTimeZone.UTC);
             int hour = time.getHourOfDay();
 
             SummaryStatistics stats;
-            if (funstuff.containsKey(hour)) {
+            if (summaries.containsKey(hour)) {
                 // Started gathering statistics, add to it
-                stats = funstuff.get(hour);
+                stats = summaries.get(hour);
             } else {
                 // Will now start gathering statistics
                 stats = new SummaryStatistics();
-                funstuff.put(hour, stats);
+                summaries.put(hour, stats);
             }
 
             stats.addValue(cars_per_hour);
@@ -64,7 +58,7 @@ public class Data {
 
         // Make model based on statistics gathered
         carsPerHour = new HashMap<Integer, NormalDistribution>();
-        for (Map.Entry<Integer, SummaryStatistics> per_hour_stats : funstuff.entrySet()) {
+        for (Map.Entry<Integer, SummaryStatistics> per_hour_stats : summaries.entrySet()) {
             int hour = per_hour_stats.getKey();
             SummaryStatistics stats = per_hour_stats.getValue();
 
@@ -72,8 +66,8 @@ public class Data {
             try {
                 NormalDistribution distribution = new NormalDistribution(stats.getMean(), stats.getStandardDeviation());
                 carsPerHour.put(hour, distribution);
-                System.out.println("Made a distribution for hour " + hour + "!");
             } catch (Exception e) {
+                // No distribution made, as all counts had the same count.
                 System.out.println(":( No distribution made for hour " + hour);
             }
         }
@@ -101,12 +95,15 @@ public class Data {
             // We have traffic data for the hour, sample it.
             Double sample = carsPerHour.get(hour).sample(1)[0];
             if (sample <= 0) {
-                traffic = new TrafficData(from.getLocation(), to.getLocation(), time.getMillis(), "CARS_PER_HOUR", 0.0);
+                traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", 0.0);
             } else {
-                traffic = new TrafficData(from.getLocation(), to.getLocation(), time.getMillis(), "CARS_PER_HOUR", sample);
+                traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", sample);
             }
         } else {
             // TODO: See if we have the previous hour and the next hour and interpolate the data if we do
+            // For now, just assume that there is a random number between 0-100 cars, since all measurements at that hour had the same amount of cars.
+            // NOTE: Even though it says max is 101, it's actually 100, since it's exclusive for the top bound.
+            traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", (double) ThreadLocalRandom.current().nextInt(0, 101));
         }
 
         if (traffic != null && traffic.isValid()) {
