@@ -83,8 +83,8 @@ public class TrafficHandler implements HttpHandler {
                 Double val_val = trafficData.getValue();
 
                 // Put the value into HBase
-                // TODO: Partition based on hour?
-                Put p = new Put(Bytes.toBytes(from_hash + "_" + to_hash));
+                long get_last_hour = trafficData.getTimestamp() - (trafficData.getTimestamp() % 3600);
+                Put p = new Put(Bytes.toBytes(from_hash + "_" + to_hash + "_" + String.valueOf(get_last_hour)));
                 p.addColumn(Bytes.toBytes("data"),
                         Bytes.toBytes(key_val + "~" + long_val),
                         Bytes.toBytes(String.valueOf(val_val)));

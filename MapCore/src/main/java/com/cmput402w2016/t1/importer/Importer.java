@@ -6,8 +6,7 @@ import com.cmput402w2016.t1.data.Way;
 import com.cmput402w2016.t1.util.Util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import javax.xml.stream.XMLInputFactory;
