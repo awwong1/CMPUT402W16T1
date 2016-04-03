@@ -60,7 +60,7 @@ public class NodeHandler implements HttpHandler {
                     return;
                 }
             }
-            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query toNode the node api");
+            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the node api");
             httpExchange.close();
         } catch (Exception e) {
             // Wasn't returned earlier, something must be wrong

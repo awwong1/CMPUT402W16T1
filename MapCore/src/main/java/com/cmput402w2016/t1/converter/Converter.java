@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * This class takes the data.csv that was prepared, and makes JSON files that we can run through the simulator
  * Use this format: latitude, longitude, direction, ts, count
- * Data fromNode this source:
+ * Data from this source:
  *   https://www.dropbox.com/s/cjzxwsr6z73wxab/EdmontonTrafficDB%20%281%29.7z?dl=0
  * Created by this query:
  *   SELECT S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time) AS ts, T.count FROM Sites S INNER JOIN TrafficEvents T ON S.site_id = T.site_id WHERE S.latitude IS NOT NULL ORDER BY S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time)
@@ -77,7 +77,7 @@ public class Converter {
                         }
                     }
 
-                    // Set toNode current closest
+                    // Set to current closest
                     last_lat = latitude;
                     last_lon = longitude;
                     last_direction = direction;
@@ -91,7 +91,7 @@ public class Converter {
                     // Add the current data that we're on
                     currentData.addData(timestamp, count);
                 }
-                // nextLine[] is an array of values fromNode the line
+                // nextLine[] is an array of values from the line
                 //System.out.println(nextLine[0] + nextLine[1] + "etc...");
             }
         } catch (FileNotFoundException e) {
@@ -104,29 +104,29 @@ public class Converter {
     }
 
     /**
-     * Helps compare the segment nodes toNode determine the best match toNode the data
+     * Helps compare the segment nodes to determine the best match to the data
      *
      * @param direction
      * @param best
      * @param from
      * @param to
-     * @return True if the toNode node is a better match than the previous.
+     * @return True if the to node is a better match than the previous.
      */
     public static boolean compareBestSegment(String direction, Location best, Location from, Location to) {
         double bearing_best = from.bearingTo(best);
         double bearing_to = from.bearingTo(to);
         switch(direction) {
             case "NBD":
-                // Closest toNode 0
+                // Closest to 0
                 return compareAngles(0.0, bearing_best, bearing_to);
             case "EBD":
-                // Closest toNode 90
+                // Closest to 90
                 return compareAngles(Math.PI/2, bearing_best, bearing_to);
             case "SBD":
-                // Closest toNode 180
+                // Closest to 180
                 return compareAngles(Math.PI, bearing_best, bearing_to);
             case "WBD":
-                // Closest toNode 270
+                // Closest to 270
                 return compareAngles(Math.PI * 1.5, bearing_best, bearing_to);
             default:
                 // TODO: Exception instead

@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class Helper {
     /*
-     * The following code is adapted fromNode:
+     * The following code is adapted from:
      * http://stackoverflow.com/questions/11640025/java-httpserver-httpexchange-get
-     * Feed the function a raw query string and it will generate a map with key-value pairs toNode use
+     * Feed the function a raw query string and it will generate a map with key-value pairs to use
      */
     public static Map<String, String> queryToMap(String query) {
         Map<String, String> result = new HashMap<>();

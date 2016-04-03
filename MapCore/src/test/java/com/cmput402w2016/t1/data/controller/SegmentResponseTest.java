@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 public class SegmentResponseTest extends TestCase {
     public void testConstructor() throws Exception {
         String json = "{\n" +
-                "   \"fromNode\":\"c3x21hyb5b53\",\n" +
+                "   \"from\":\"c3x21hyb5b53\",\n" +
                 "   \"c3x21hrrvhs7\":{\n" +
                 "      \"id\":\"25331556\",\n" +
                 "      \"created_by\":\"Potlatch 0.9c\",\n" +

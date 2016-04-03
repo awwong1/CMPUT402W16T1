@@ -149,11 +149,11 @@ public class Node {
     }
 
     /**
-     * Return the string geohash of the closest neighbor toNode the actual specified location.
+     * Return the string geohash of the closest neighbor to the actual specified location.
      *
      * @param segment_table HBase table containing the
      * @param actual        Location that the user provided
-     * @return String geohash representing the closet neighbor toNode the current node. Null if no neighbors.
+     * @return String geohash representing the closet neighbor to the current node. Null if no neighbors.
      */
     public String getClosestNeighborGeohash(Table segment_table, Location actual) {
         String[] neighbors = Segment.getNeighborGeohashesAsGeohashArray(this.getGeohash(), segment_table);
@@ -172,7 +172,7 @@ public class Node {
     }
 
     /**
-     * Given a location object, return the closest node toNode that location.
+     * Given a location object, return the closest node to that location.
      *
      * @param location   Location object representing the lat and lon
      * @param node_table HBase table containing the nodes
@@ -183,7 +183,7 @@ public class Node {
     }
 
     /**
-     * Given a lat and lon, return the closest node toNode that given location.
+     * Given a lat and lon, return the closest node to that given location.
      *
      * @param lat        String representing lat
      * @param lon        String representing lon

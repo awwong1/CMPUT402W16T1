@@ -9,11 +9,11 @@ public class TrafficDataTest extends TestCase {
 
     public void test_json_to_traffic_data() throws Exception {
         String rawJsonObject = "{" +
-                "\"fromNode\": {" +
+                "\"from\": {" +
                 "\"lon\": -113.506595," +
                 "\"lat\": 53.5372492" +
                 "}," +
-                "\"toNode\": {" +
+                "\"to\": {" +
                 "\"lon\": -113.5047471," +
                 "\"lat\": 53.5372532" +
                 "}," +
@@ -37,8 +37,8 @@ public class TrafficDataTest extends TestCase {
 
     public void test_json_to_traffic_data_with_geohash() throws Exception {
         String rawJsonObject = "{" +
-                "\"fromNode\":\"c3x2945j0ds7\"," +
-                "\"toNode\":\"c3x294hm5eq7\"," +
+                "\"from\":\"c3x2945j0ds7\"," +
+                "\"to\":\"c3x294hm5eq7\"," +
                 "\"timestamp\":1459269834," +
                 "\"key\":\"KEY\"," +
                 "\"value\":40.0" +

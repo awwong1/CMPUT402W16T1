@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Interacts with our database through REST.
- * Important: Do not use this controller inside webapi! The webapi implements the functionality toNode support
+ * Important: Do not use this controller inside webapi! The webapi implements the functionality to support
  * this controller!
  */
 public class RestController implements DatabaseController {

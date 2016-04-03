@@ -31,7 +31,7 @@ public class SegmentHandler implements HttpHandler {
                     return;
                 }
             }
-            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query toNode the segment api");
+            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the segment api");
             httpExchange.close();
         } catch (Exception e) {
             // Wasn't returned earlier, something must be wrong

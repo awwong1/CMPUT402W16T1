@@ -33,10 +33,10 @@ public class Importer {
     private static final ArrayList<Way> ways = new ArrayList<>();
 
     /**
-     * Given the OSM XML file, parse out all of the nodes and ways and then run the import methods toNode
+     * Given the OSM XML file, parse out all of the nodes and ways and then run the import methods to
      * put the values into HBase.
      *
-     * @param filename path toNode the OSM XML file
+     * @param filename path to the OSM XML file
      * @throws XMLStreamException XML file is invalid
      */
     public static void import_from_file(String filename) throws XMLStreamException {
@@ -104,7 +104,7 @@ public class Importer {
                                 node_id = Long.parseLong(value);
                             }
                         }
-                        // Add node toNode way
+                        // Add node to way
                         if (node_id != Long.MIN_VALUE) {
                             way.addNode(nodes.get(node_id));
                         }
@@ -134,7 +134,7 @@ public class Importer {
                             /*
                             else {
                                 // This will barf because we don't care about 'relation' data types
-                                // System.err.println(key + ": " + value + " not associated toNode node or way!");
+                                // System.err.println(key + ": " + value + " not associated to node or way!");
                             }
                             */
                         }
@@ -168,13 +168,13 @@ public class Importer {
     }
 
     /**
-     * Import all of the nodes fromNode the parsed XML into the HBase table as a node.
+     * Import all of the nodes from the parsed XML into the HBase table as a node.
      */
     private static void import_nodes() {
         System.out.println("Importing nodes...");
         Table nodeTable = Util.get_table("node");
         if (nodeTable == null) {
-            System.err.println("Node table failed toNode load.");
+            System.err.println("Node table failed to load.");
             return;
         }
 
@@ -209,7 +209,7 @@ public class Importer {
     }
 
     /**
-     * Import all of the ways fromNode the parsed XML into the HBase table as a segment.
+     * Import all of the ways from the parsed XML into the HBase table as a segment.
      * Ways are OSM values which consist of a list of nodes.
      * Segments are custom values we use which represent a single node and its neighbors.
      */
@@ -217,7 +217,7 @@ public class Importer {
         System.out.println("Importing ways (segments)...");
         Table segmentTable = Util.get_table("segment");
         if (segmentTable == null) {
-            System.err.println("Segment table failed toNode load.");
+            System.err.println("Segment table failed to load.");
             return;
         }
 

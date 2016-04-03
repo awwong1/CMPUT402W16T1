@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * Holds and represents the models and data that we're simulating data for, in reference toNode a segment
+ * Holds and represents the models and data that we're simulating data for, in reference to a segment
  */
 public class SimulatorDataModel extends SimulatorData {
     private transient Map<Integer, NormalDistribution> carsPerHour;
@@ -45,7 +45,7 @@ public class SimulatorDataModel extends SimulatorData {
 
             SummaryStatistics stats;
             if (summaries.containsKey(hour)) {
-                // Started gathering statistics, add toNode it
+                // Started gathering statistics, add to it
                 stats = summaries.get(hour);
             } else {
                 // Will now start gathering statistics
@@ -73,9 +73,9 @@ public class SimulatorDataModel extends SimulatorData {
     }
 
     /**
-     * Samples a data point fromNode the Cars Per Hour model, using the given timestamp
+     * Samples a data point from the Cars Per Hour model, using the given timestamp
      *
-     * @param timestamp Timestamp toNode simulate traffic data for. Specify in milliseconds since epoch. Use UTC!
+     * @param timestamp Timestamp to simulate traffic data for. Specify in milliseconds since epoch. Use UTC!
      * @return Simulated data for Cars Per Hour based on the model
      * @throws Exception
      */

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Util {
     /**
-     * Get the table fromNode the HBase connection's administrative interface.
+     * Get the table from the HBase connection's administrative interface.
      *
      * @param raw_table_name Name of the table
      * @return Table matching the raw_table_name, or null
@@ -38,7 +38,7 @@ public class Util {
      * Take the string, shorten it by one character, return the string.
      * If the string is the empty string "", return null.
      *
-     * @param str String toNode shorten
+     * @param str String to shorten
      * @return Shortened string or null
      */
     public static String shorten(String str) {

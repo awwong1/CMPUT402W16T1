@@ -23,7 +23,7 @@ public class TrafficHandler implements HttpHandler {
     /**
      * Take the httpExchange object and grab all of the post data as a String
      *
-     * @param httpExchange Object toNode read the post data fromNode
+     * @param httpExchange Object to read the post data from
      * @return String representation of the post data
      */
     private String read_post_body(HttpExchange httpExchange) {
@@ -42,7 +42,7 @@ public class TrafficHandler implements HttpHandler {
     }
 
     /**
-     * Handle the httpExchange request toNode the server
+     * Handle the httpExchange request to the server
      *
      * @param httpExchange object containing the request, http methods, http body
      */
@@ -90,7 +90,7 @@ public class TrafficHandler implements HttpHandler {
                         Bytes.toBytes(String.valueOf(val_val)));
                 WebApi.get_traffic_table().put(p);
 
-                // This takes the the fromNode: and toNode: keys and nests the location within, not matching our api
+                // This takes the the from: and to: keys and nests the location within, not matching our api
                 // Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
                 Helper.requestResponse(httpExchange, 201, trafficData.to_serialized_json());
                 httpExchange.close();
@@ -102,7 +102,7 @@ public class TrafficHandler implements HttpHandler {
                 return;
             }
             // Submitted a method other than POST
-            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query toNode the traffic api");
+            Helper.malformedRequestResponse(httpExchange, 400, "Invalid query to the traffic api");
             httpExchange.close();
 
         } catch (Exception e) {

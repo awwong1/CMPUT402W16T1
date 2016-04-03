@@ -98,7 +98,7 @@ public class Main {
 
     /**
      * We were having issues with heap usage going over on many runs, so we added this for convenience. If you're
-     * running in toNode heap errors as well, adjust the hadoop settings for heap memory allocation.
+     * running in to heap errors as well, adjust the hadoop settings for heap memory allocation.
      */
     public static void print_heap_usage() {
         int mb = 1024 * 1024;

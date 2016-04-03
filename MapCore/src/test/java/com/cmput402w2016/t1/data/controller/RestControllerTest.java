@@ -3,7 +3,8 @@ package com.cmput402w2016.t1.data.controller;
 import com.cmput402w2016.t1.data.Location;
 import com.cmput402w2016.t1.data.Node;
 import junit.framework.TestCase;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by Kent on 4/2/2016.
@@ -21,7 +22,7 @@ public class RestControllerTest extends TestCase {
         Node closestNode = controller.getClosestNode(input_location);
         String retrieved_location = closestNode.getGeohash();
 
-        // Should match with a node, but that node's location should be different fromNode our test
+        // Should match with a node, but that node's location should be different from our test
         // unless OSM & our database get updated.
         assertNotEquals(retrieved_location, input_location.getGeohash());
 

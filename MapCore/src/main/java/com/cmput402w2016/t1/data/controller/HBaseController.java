@@ -7,7 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
- * Interacts via. a direct connection toNode Hadoop & HBase
+ * Interacts via. a direct connection to Hadoop & HBase
  */
 public class HBaseController implements DatabaseController {
     public void postTraffic(TrafficData traffic) {

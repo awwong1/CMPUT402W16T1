@@ -55,7 +55,7 @@ public class Location {
     }
 
     /**
-     * Compute the geohash fromNode the lat lon, return the string value of the geohash with maximum precision.
+     * Compute the geohash from the lat lon, return the string value of the geohash with maximum precision.
      *
      * @return String geohash value
      */
@@ -84,10 +84,10 @@ public class Location {
     }
 
     /**
-     * Distance calculation of lat and lon taken fromNode
+     * Distance calculation of lat and lon taken from
      * http://stackoverflow.com/a/5396425
      *
-     * @param to Location toNode point
+     * @param to Location to point
      * @return double, distance between two points in meters
      */
     public double distance(Location to) {
@@ -104,8 +104,8 @@ public class Location {
     }
 
     /**
-     * Adapted fromNode http://stackoverflow.com/questions/9457988/bearing-from-one-coordinate-to-another
-     * Returns bearing in reference fromNode this point toNode the given point
+     * Adapted from http://stackoverflow.com/questions/9457988/bearing-from-one-coordinate-to-another
+     * Returns bearing in reference from this point to the given point
      *
      * @param to Second location
      * @return
