@@ -64,7 +64,7 @@ public class Importer {
                             String s = xmlStreamReader.getAttributeLocalName(i);
                             switch (s) {
                                 case "id":
-                                    node.setId(value);
+                                    node.setOsmId(value);
                                     break;
                                 case "lat":
                                     node.setLat(value);
@@ -123,7 +123,7 @@ public class Importer {
                             if (node != null) {
                                 // This is a node tag
                                 node.addTag(key, value);
-                                System.out.println("Added Node Tag " + key + ": " + value + "for " + node.getId());
+                                System.out.println("Added Node Tag " + key + ": " + value + "for " + node.getOsmId());
                             } else if (way != null) {
                                 // This is a way tag
                                 way.addTag(key, value);
@@ -142,8 +142,8 @@ public class Importer {
             } else if (xmlStreamReader.isEndElement()) {
                 String s = xmlStreamReader.getLocalName();
                 if (s.equals("node") && node != null) {
-                    nodes.put(node.getId(), node);
-                    System.out.print("\rAdded Node " + String.valueOf(node.getId()));
+                    nodes.put(node.getOsmId(), node);
+                    System.out.print("\rAdded Node " + String.valueOf(node.getOsmId()));
                     node = null;
                 } else if (s.equals("way") && way != null) {
                     ways.add(way);

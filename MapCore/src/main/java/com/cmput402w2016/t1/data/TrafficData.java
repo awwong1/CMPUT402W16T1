@@ -4,14 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class TrafficData {
-    private Location from = null;
-    private Location to = null;
+    private Node from = null;
+    private Node to = null;
     // This is supposed to be an epoch time (seconds since epoch), not java's milliseconds
     private Long timestamp = null;
     private String key = null;
     private Double value = null;
 
-    public TrafficData(Location from, Location to, long timestamp, String key, Double value) {
+    public TrafficData(Node from, Node to, long timestamp, String key, Double value) {
         this.from = from;
         this.to = to;
         this.timestamp = timestamp;
@@ -50,11 +50,11 @@ public class TrafficData {
         return from_valid && to_valid && timestamp_valid && key_valid;
     }
 
-    public Location getFrom() {
+    public Node getFrom() {
         return from;
     }
 
-    public Location getTo() {
+    public Node getTo() {
         return to;
     }
 
@@ -83,23 +83,23 @@ public class TrafficData {
         JsonElement raw_key = raw_json_object.get("key");
         JsonElement raw_value = raw_json_object.get("value");
 
-        Location from = null;
-        Location to = null;
+        Node from = null;
+        Node to = null;
         try {
             JsonElement from_lat = raw_from.getAsJsonObject().get("lat");
             JsonElement from_lon = raw_from.getAsJsonObject().get("lon");
             JsonElement to_lat = raw_to.getAsJsonObject().get("lat");
             JsonElement to_lon = raw_to.getAsJsonObject().get("lon");
-            from = new Location(from_lat.getAsString(), from_lon.getAsString());
-            to = new Location(to_lat.getAsString(), to_lon.getAsString());
+            from = new Node(from_lat.getAsDouble(), from_lon.getAsDouble());
+            to = new Node(to_lat.getAsDouble(), to_lon.getAsDouble());
         } catch (Exception ignored) {
             // This is fine, lat and lon don't have to be provided as we also accept geohashes
         }
         try {
             String from_geohash = raw_from.getAsString();
             String to_geohash = raw_to.getAsString();
-            from = new Location(from_geohash);
-            to = new Location(to_geohash);
+            from = new Node(from_geohash);
+            to = new Node(to_geohash);
         } catch (Exception ignored) {
             // This is fine, perhaps from and to were set before
         }

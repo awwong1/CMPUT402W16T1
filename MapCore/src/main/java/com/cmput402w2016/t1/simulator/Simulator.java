@@ -17,7 +17,7 @@ public  class Simulator {
 
         Gson gson = new Gson();
         File folder = new File("data/simulator");
-        ArrayList<Data> allData = new ArrayList<>();
+        ArrayList<SimulatorDataModel> allData = new ArrayList<>();
 
         // Read & Parse all the data we have
         File[] files = folder.listFiles();
@@ -30,7 +30,7 @@ public  class Simulator {
                 continue;
             }
             FileReader reader = new FileReader(file);
-            Data data = gson.fromJson(reader, Data.class);
+            SimulatorDataModel data = gson.fromJson(reader, SimulatorDataModel.class);
             allData.add(data);
         }
 
@@ -50,10 +50,10 @@ public  class Simulator {
             }
 
             // Simulate everything we have data for
-            for(Data data : allData) {
+            for(SimulatorDataModel data : allData) {
                 try {
                     // Get traffic sample
-                    TrafficData traffic = data.sampleCarsPerHourModel(this_hour.getMillis());
+                    TrafficData traffic = data.sampleCarsPerHourModel(this_hour.getMillis() / 1000);
                     // Post
                     controller.postTraffic(traffic);
                 } catch (Exception e) {

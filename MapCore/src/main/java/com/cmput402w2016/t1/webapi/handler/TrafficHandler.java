@@ -72,11 +72,11 @@ public class TrafficHandler implements HttpHandler {
                 }
 
                 // Get the source node.
-                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_node_table());
+                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom().getLocation(), WebApi.get_node_table());
                 String from_hash = from_node.getGeohash();
 
                 // Get the closet neighbor geohash
-                String to_hash = from_node.getClosestNeighborGeohash(WebApi.get_segment_table(), trafficData.getTo());
+                String to_hash = from_node.getClosestNeighborGeohash(WebApi.get_segment_table(), trafficData.getTo().getLocation());
 
                 String long_val = String.valueOf(trafficData.getTimestamp());
                 String key_val = trafficData.getKey();

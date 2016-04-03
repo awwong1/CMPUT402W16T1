@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
@@ -17,18 +16,46 @@ import java.util.Map;
 
 public class Node {
     // OSM ID of the Node
-    @SerializedName("osm_id")
-    private long id = Long.MIN_VALUE;
+    private long osmId = Long.MIN_VALUE;
     // Where the node is (lat/lon/geohash)
     private Location location = new Location(Double.MIN_VALUE, Double.MIN_VALUE);
 
     // The mapping of all the node tags defined in OSM
-    private int osm_id;
     private Map<String, String> tags = new HashMap<>();
 
     public Node() {
     }
 
+    public Node(String geohash) {
+        this.location = new Location(geohash);
+    }
+
+    public Node(Double lat, Double lon) {
+        this.location = new Location(lat, lon);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (osmId != node.osmId) return false;
+        if (!location.equals(node.location)) return false;
+        return tags.equals(node.tags);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return location.hashCode();
+    }
+
+    /**
+     * @param geohash
+     * @param serialized_tags
+     */
     public Node(String geohash, String serialized_tags) {
         this.location = new Location(geohash);
         JsonParser jsonParser = new JsonParser();
@@ -38,7 +65,7 @@ public class Node {
             String key = entry.getKey();
             JsonElement val = entry.getValue();
             if (key.equals("id")) {
-                this.id = val.getAsLong();
+                this.osmId = val.getAsLong();
             } else {
                 this.tags.put(key, val.toString());
             }
@@ -50,12 +77,12 @@ public class Node {
         this.tags.putAll(tags);
     }
 
-    public void setId(String id) {
-        this.id = Long.parseLong(id);
+    public void setOsmId(String osmId) {
+        this.osmId = Long.parseLong(osmId);
     }
 
-    public long getId() {
-        return this.id;
+    public long getOsmId() {
+        return this.osmId;
     }
 
     public void setLat(String lat) {
@@ -75,7 +102,7 @@ public class Node {
     }
 
     public boolean isComplete() {
-        return location.isValid() && id != Long.MIN_VALUE;
+        return location.isValid() && osmId != Long.MIN_VALUE;
     }
 
     public String getGeohash() {
@@ -90,7 +117,7 @@ public class Node {
 
     public String getTagsWithIDAsSerializedJSON() {
         Map<String, String> m_tags = new HashMap<>(this.tags);
-        m_tags.put("id", String.valueOf(this.getId()));
+        m_tags.put("id", String.valueOf(this.getOsmId()));
         Gson gson = new Gson();
         return gson.toJson(m_tags);
     }
@@ -106,7 +133,7 @@ public class Node {
         json.addProperty("geohash", this.getGeohash());
         json.addProperty("lat", this.getLat());
         json.addProperty("lon", this.getLon());
-        json.addProperty("osm_id", this.getId());
+        json.addProperty("osm_id", this.getOsmId());
         JsonObject tags = new JsonObject();
         for (Map.Entry<String, String> e : this.tags.entrySet()) {
             String key = e.getKey();
@@ -194,9 +221,9 @@ public class Node {
     }
 
     /**
-     * Take an osm node id, get the node object with all fields populated
+     * Take an osm node osmId, get the node object with all fields populated
      *
-     * @param osm_id     String osm id matching the node exactly
+     * @param osm_id     String osm osmId matching the node exactly
      * @param node_table HBase table where all the nodes are stored
      * @return Node object, null if node doesn't exist
      */
@@ -220,5 +247,9 @@ public class Node {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean isValid() {
+        return location.isValid();
     }
 }
