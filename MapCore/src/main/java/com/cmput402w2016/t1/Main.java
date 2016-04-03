@@ -17,6 +17,7 @@ public class Main {
         options.addOption("i", "importer", true, "run the importer");
         options.addOption("w", "webapi", true, "run the web api server");
         options.addOption("s", "simulator", true, "run the simulator");
+        options.addOption("c", "converter", true, "run the converter");
         options.addOption("u", "usage", false, "display heap usage");
 
         // Return value
@@ -41,7 +42,7 @@ public class Main {
 
             //// Options that require arguments
             // Check that only one of the importer, webapi, or simulator params are set
-            boolean[] proper_options = {line.hasOption("i"), line.hasOption("w"), line.hasOption("s")};
+            boolean[] proper_options = {line.hasOption("i"), line.hasOption("w"), line.hasOption("s"), line.hasOption("c")};
             int proper_option_count = 0;
             for (boolean proper_option : proper_options) {
                 if (proper_option) {
@@ -70,6 +71,12 @@ public class Main {
                 if(r != 0) {
                     System.exit(r);
                 }
+            } else if (line.hasOption("c")) {
+                if(!line.hasOption("host")) {
+                    System.err.println("Run converter with the option --host point to the REST API");
+                }
+                // Run the converter
+                Converter.run(line.getOptionValue('c'), line.getOptionValue("host"));
             }
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());

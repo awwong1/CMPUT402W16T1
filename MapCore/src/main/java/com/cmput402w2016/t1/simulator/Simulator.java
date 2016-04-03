@@ -53,7 +53,7 @@ public  class Simulator {
             for(SimulatorDataModel data : allData) {
                 try {
                     // Get traffic sample
-                    TrafficData traffic = data.sampleCarsPerHourModel(this_hour.getMillis() / 1000);
+                    TrafficData traffic = data.sampleCarsPerHourModel(this_hour.getMillis());
                     // Post
                     controller.postTraffic(traffic);
                 } catch (Exception e) {
