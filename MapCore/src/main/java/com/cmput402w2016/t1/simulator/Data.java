@@ -1,7 +1,7 @@
 package com.cmput402w2016.t1.simulator;
 
 import com.cmput402w2016.t1.data.Node;
-import com.cmput402w2016.t1.data.Traffic;
+import com.cmput402w2016.t1.data.TrafficData;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.joda.time.DateTime;
@@ -10,9 +10,13 @@ import org.joda.time.DateTimeZone;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Holds and represents the models and data that we're simulating data for, in reference to a segment
+ */
 public class Data {
-    public Map<String, Integer> traffic;
-    public Map<Integer, NormalDistribution> carsPerHour;
+    private Map<String, Integer> traffic;
+    private transient Map<Integer, NormalDistribution> carsPerHour;
     private String source;
     private Node from;
     private Node to;
@@ -29,9 +33,10 @@ public class Data {
     }
 
     /**
-     * Cars-per-hour data works by
+     * Cars Per Hour model works by creating 24 normal distributions (1 for each hour of the day).
+     *  After the model is generated, you can sample it with the sampleCarsPerHourModel function
      */
-    private void generateCarsPerHourModel() {
+    public void generateCarsPerHourModel() {
         // Get statistical data for counts at each hour
         Map<Integer, SummaryStatistics> funstuff = new HashMap<Integer, SummaryStatistics>();
         for (Map.Entry<String, Integer> count : traffic.entrySet()) {
@@ -75,13 +80,13 @@ public class Data {
     }
 
     /**
-     * Generates a sample traffic object at the given time
+     * Samples a data point from the Cars Per Hour model, using the given timestamp
      *
      * @param timestamp Timestamp to simulate traffic data for. Specify in milliseconds since epoch. Use UTC!
-     * @return A traffic object containing simulated data
+     * @return Simulated data for Cars Per Hour based on the model
      * @throws Exception
      */
-    public Traffic generateSampleTraffic(long timestamp) throws Exception {
+    public TrafficData sampleCarsPerHourModel(long timestamp) throws Exception {
         // Verify we have a traffic model for this segment
         if (carsPerHour == null) {
             generateModel();
@@ -89,27 +94,27 @@ public class Data {
 
         DateTime time = new DateTime(timestamp, DateTimeZone.UTC);
         int hour = time.getHourOfDay();
-        Traffic traffic = new Traffic(from, to, time.getMillis());
+        TrafficData traffic = null;
 
         // Add cars-per-hour data
         if (carsPerHour.containsKey(hour)) {
             // We have traffic data for the hour, sample it.
             Double sample = carsPerHour.get(hour).sample(1)[0];
             if (sample <= 0) {
-                traffic.addData("CARS_PER_HOUR", 0.0);
+                traffic = new TrafficData(from.getLocation(), to.getLocation(), time.getMillis(), "CARS_PER_HOUR", 0.0);
             } else {
-                traffic.addData("CARS_PER_HOUR", (double) Math.round(sample));
+                traffic = new TrafficData(from.getLocation(), to.getLocation(), time.getMillis(), "CARS_PER_HOUR", sample);
             }
         } else {
             // TODO: See if we have the previous hour and the next hour and interpolate the data if we do
         }
 
-        if (traffic.isValid()) {
+        if (traffic != null && traffic.isValid()) {
             // Traffic has data
             return traffic;
         } else {
             // Traffic didn't have any data
-            throw new Exception();
+            throw new Exception(String.format("No traffic model for the given timestamp: %d (Hour: %d)", time.getMillis(), time.getHourOfDay()));
         }
     }
 }

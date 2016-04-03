@@ -3,12 +3,16 @@ package com.cmput402w2016.t1.data;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Way {
+    // OSM ID for the way
     private long id;
-    private ArrayList<Node> geohash_nodes;
+    // Ordered List of Nodes
+    private List<Node> geohash_nodes;
+    // OSM defined tags for the ways
     private Map<String, String> tags = new HashMap<>();
 
     public Way() {
@@ -27,7 +31,7 @@ public class Way {
         geohash_nodes.add(node);
     }
 
-    public ArrayList<Node> getNodes() {
+    public List<Node> getNodes() {
         return geohash_nodes;
     }
 
