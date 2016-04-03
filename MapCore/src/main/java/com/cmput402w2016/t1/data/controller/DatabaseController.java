@@ -14,4 +14,6 @@ public interface DatabaseController {
     void postTraffic(TrafficData traffic);
 
     Node getClosestNode(Location location);
+
+    SegmentResponse getSegment(Location location);
 }

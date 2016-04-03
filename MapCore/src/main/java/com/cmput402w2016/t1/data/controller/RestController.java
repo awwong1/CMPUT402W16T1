@@ -48,11 +48,14 @@ public class RestController implements DatabaseController {
             // Set SimulatorDataModel
             PostMethod trafficPost = new PostMethod(uri.concat("/traffic"));
 
-            StringRequestEntity entity = new StringRequestEntity(traffic.to_serialized_json(), "application/json", "UTF-8");
+            String content = traffic.to_serialized_json();
+            StringRequestEntity entity = new StringRequestEntity(content, "application/json", "UTF-8");
             trafficPost.setRequestEntity(entity);
 
             // Send SimulatorDataModel
             client.executeMethod(trafficPost);
+
+            String responseBodyAsString = trafficPost.getResponseBodyAsString();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (HttpException e) {
@@ -72,6 +75,22 @@ public class RestController implements DatabaseController {
 
             return new Node(nodeResponse.geohash, nodeResponse.tags);
 
+        } catch (HttpException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public SegmentResponse getSegment(Location location) {
+        try {
+            GetMethod nodeGet = new GetMethod(uri.concat(String.format("/segment?geohash=%s", location.getGeohash())));
+            client.executeMethod(nodeGet);
+
+            String responseBodyAsString = nodeGet.getResponseBodyAsString();
+            return new SegmentResponse(responseBodyAsString);
         } catch (HttpException e) {
             e.printStackTrace();
         } catch (IOException e) {

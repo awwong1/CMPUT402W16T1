@@ -17,4 +17,8 @@ public class HBaseController implements DatabaseController {
     public Node getClosestNode(Location location) {
         throw new NotImplementedException();
     }
+
+    public SegmentResponse getSegment(Location location) {
+        throw new NotImplementedException();
+    }
 }

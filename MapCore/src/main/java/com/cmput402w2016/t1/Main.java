@@ -1,5 +1,6 @@
 package com.cmput402w2016.t1;
 
+import com.cmput402w2016.t1.converter.Converter;
 import com.cmput402w2016.t1.importer.Importer;
 import com.cmput402w2016.t1.simulator.Simulator;
 import com.cmput402w2016.t1.webapi.WebApi;
@@ -19,6 +20,7 @@ public class Main {
         options.addOption("s", "simulator", true, "run the simulator");
         options.addOption("c", "converter", true, "run the converter");
         options.addOption("u", "usage", false, "display heap usage");
+        options.addOption("", "host", true, "Hostname for REST server (e.g.: 'http://199.116.235.225'");
 
         // Return value
         int r = 0;
@@ -87,7 +89,7 @@ public class Main {
 
     private static void print_help() {
         String header = "MapCore application. CMPUT 402 Winter 2016 Project.\n" +
-                "Must run as either importer, simulator, or webapi.\n\n";
+                "Must run as either importer, simulator, webapi or converter.\n\n";
         String footer = "\nPlease report issues at\nhttps://github.com/cmput402w2016/CMPUT402W16T1/issues";
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("MapCore", header, options, footer, true);

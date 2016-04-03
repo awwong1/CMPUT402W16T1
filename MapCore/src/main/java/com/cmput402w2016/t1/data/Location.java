@@ -9,7 +9,7 @@ import com.github.davidmoten.geo.LatLong;
 public class Location {
     private String geohash;
 
-    Location(Double lat, Double lon) {
+    public Location(Double lat, Double lon) {
         this.geohash = GeoHash.encodeHash(lat, lon);
     }
 
@@ -22,17 +22,17 @@ public class Location {
         this.geohash = geohash;
     }
 
-    Double getLat() {
+    public Double getLat() {
         return GeoHash.decodeHash(this.geohash).getLat();
-    }
-
-    Double getLon() {
-        return GeoHash.decodeHash(this.geohash).getLon();
     }
 
     void setLat(Double lat) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         this.geohash = GeoHash.encodeHash(lat, ll.getLon());
+    }
+
+    public Double getLon() {
+        return GeoHash.decodeHash(this.geohash).getLon();
     }
 
     void setLon(Double lon) {
@@ -90,7 +90,7 @@ public class Location {
      * @param to Location to point
      * @return double, distance between two points in meters
      */
-    double distance(Location to) {
+    public double distance(Location to) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         LatLong tll = GeoHash.decodeHash(to.geohash);
         double radius = 6378137;   // approximate Earth radius, *in meters*

@@ -30,4 +30,16 @@ public class RestControllerTest extends TestCase {
         Location expected_location = new Location("c3x21hyb5b53");
         assertEquals(retrieved_location, expected_location);
     }
+
+    public void testGetSegment() throws Exception {
+        SegmentResponse response = controller.getSegment(new Location("c3x21hyb5b53"));
+
+        // Should have created 3 segments
+        assertTrue(response.segmentNodes.size() == 3);
+        // Should contain the right data
+        assertEquals(response.from, "c3x21hyb5b53");
+        assertTrue(response.segmentNodes.containsKey("c3x21hrrvhs7"));
+        assertTrue(response.segmentNodes.containsKey("c3x21kf0wexu"));
+        assertTrue(response.segmentNodes.containsKey("c3x21hxhbw93"));
+    }
 }

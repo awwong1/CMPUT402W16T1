@@ -34,6 +34,10 @@ public class Node {
         this.location = new Location(lat, lon);
     }
 
+    public Node(Location from) {
+        this.location = from;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
