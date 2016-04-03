@@ -12,11 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class takes the data.csv that was prepared, and makes JSON files that we can run through the simulator
@@ -41,6 +37,7 @@ public class Converter {
             double last_lon = 0.0;
             String last_direction = null;
 
+            // Parse the CSV
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
                 double latitude = Double.valueOf(nextLine[0]);
@@ -84,13 +81,14 @@ public class Converter {
                     last_lat = latitude;
                     last_lon = longitude;
                     last_direction = direction;
-                    System.out.printf("Now parsing: %s\n", segment.getFrom());
+                    System.out.printf("Now parsing: %s %s\n", segment.getFrom(), direction);
                     currentData = new SimulatorData(new Node(from), new Node(bestTo), "https://www.dropbox.com/s/cjzxwsr6z73wxab/EdmontonTrafficDB%20%281%29.7z?dl=0");
                 }
 
                 if(currentData == null) {
                     throw new Exception("Didn't construct SimulatorData, error.");
                 } else {
+                    // Add the current data that we're on
                     currentData.addData(timestamp, count);
                 }
                 // nextLine[] is an array of values fromNode the line

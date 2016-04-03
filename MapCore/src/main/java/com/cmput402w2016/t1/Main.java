@@ -73,7 +73,10 @@ public class Main {
                 if(r != 0) {
                     System.exit(r);
                 }
-            } else if (line.hasOption("c") && line.hasOption("host")) {
+            } else if (line.hasOption("c")) {
+                if(!line.hasOption("host")) {
+                    System.err.println("Run converter with the option --host point to the REST API");
+                }
                 // Run the converter
                 Converter.run(line.getOptionValue('c'), line.getOptionValue("host"));
             }

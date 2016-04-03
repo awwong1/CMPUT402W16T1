@@ -6,7 +6,8 @@ import com.cmput402w2016.t1.data.Way;
 import com.cmput402w2016.t1.util.Util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import javax.xml.stream.XMLInputFactory;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Importer {
     // Values for the HBase Column Families and Keys
@@ -179,7 +181,7 @@ public class Importer {
         int counter = 0;
         int batch = 500;
         List<Put> puts = new ArrayList<>();
-        for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
+        for (Map.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
             Put p = new Put(Bytes.toBytes(node.getGeohash()));
             p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsWithIDAsSerializedJSON()));
