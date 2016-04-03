@@ -225,9 +225,9 @@ public class Node {
     }
 
     /**
-     * Take an osm node osmId, get the node object with all fields populated
+     * Take an osm node id, get the node object with all fields populated
      *
-     * @param osm_id     String osm osmId matching the node exactly
+     * @param osm_id     String osm id matching the node exactly
      * @param node_table HBase table where all the nodes are stored
      * @return Node object, null if node doesn't exist
      */
