@@ -102,4 +102,22 @@ public class Location {
                                 Math.pow(Math.sin(deltaLon / 2), 2)));
         return radius * angle;
     }
+
+    /**
+     * Adapted from http://stackoverflow.com/questions/9457988/bearing-from-one-coordinate-to-another
+     * Returns bearing in reference from this point to the given point
+     *
+     * @param to Second location
+     * @return
+     */
+    public double bearingTo(Location to) {
+        double longitude1 = this.getLon();
+        double longitude2 = to.getLon();
+        double latitude1 = Math.toRadians(this.getLat());
+        double latitude2 = Math.toRadians(to.getLat());
+        double longDiff = Math.toRadians(longitude2 - longitude1);
+        double y = Math.sin(longDiff) * Math.cos(latitude2);
+        double x = Math.cos(latitude1) * Math.sin(latitude2) - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longDiff);
+        return Math.atan2(y, x);
+    }
 }
