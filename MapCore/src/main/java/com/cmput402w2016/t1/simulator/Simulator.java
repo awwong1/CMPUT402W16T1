@@ -31,6 +31,7 @@ public  class Simulator {
             }
             FileReader reader = new FileReader(file);
             SimulatorDataModel data = gson.fromJson(reader, SimulatorDataModel.class);
+            data.constructNodes();
             allData.add(data);
         }
 

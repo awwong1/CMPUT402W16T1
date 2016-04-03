@@ -7,7 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
- * Interacts via. a direct connection to Hadoop & HBase
+ * Interacts via. a direct connection toNode Hadoop & HBase
  */
 public class HBaseController implements DatabaseController {
     public void postTraffic(TrafficData traffic) {
@@ -15,6 +15,10 @@ public class HBaseController implements DatabaseController {
     }
 
     public Node getClosestNode(Location location) {
+        throw new NotImplementedException();
+    }
+
+    public SegmentResponse getSegment(Location location) {
         throw new NotImplementedException();
     }
 }

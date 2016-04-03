@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 public class TrafficData {
     private Node from = null;
     private Node to = null;
-    // This is supposed to be an epoch time (seconds since epoch), not java's milliseconds
+    // This is supposed toNode be an epoch time (seconds since epoch), not java's milliseconds
     private Long timestamp = null;
     private String key = null;
     private Double value = null;
@@ -93,7 +93,7 @@ public class TrafficData {
             from = new Node(from_lat.getAsDouble(), from_lon.getAsDouble());
             to = new Node(to_lat.getAsDouble(), to_lon.getAsDouble());
         } catch (Exception ignored) {
-            // This is fine, lat and lon don't have to be provided as we also accept geohashes
+            // This is fine, lat and lon don't have toNode be provided as we also accept geohashes
         }
         try {
             String from_geohash = raw_from.getAsString();
@@ -101,7 +101,7 @@ public class TrafficData {
             from = new Node(from_geohash);
             to = new Node(to_geohash);
         } catch (Exception ignored) {
-            // This is fine, perhaps from and to were set before
+            // This is fine, perhaps fromNode and toNode were set before
         }
         if (from == null || to == null) {
             // guess not, return null lol

@@ -1,5 +1,6 @@
 package com.cmput402w2016.t1;
 
+import com.cmput402w2016.t1.converter.Converter;
 import com.cmput402w2016.t1.importer.Importer;
 import com.cmput402w2016.t1.simulator.Simulator;
 import com.cmput402w2016.t1.webapi.WebApi;
@@ -17,7 +18,9 @@ public class Main {
         options.addOption("i", "importer", true, "run the importer");
         options.addOption("w", "webapi", true, "run the web api server");
         options.addOption("s", "simulator", true, "run the simulator");
+        options.addOption("c", "converter", true, "run the converter");
         options.addOption("u", "usage", false, "display heap usage");
+        options.addOption("", "host", true, "Hostname for REST server (e.g.: 'http://199.116.235.225'");
 
         // Return value
         int r = 0;
@@ -41,7 +44,7 @@ public class Main {
 
             //// Options that require arguments
             // Check that only one of the importer, webapi, or simulator params are set
-            boolean[] proper_options = {line.hasOption("i"), line.hasOption("w"), line.hasOption("s")};
+            boolean[] proper_options = {line.hasOption("i"), line.hasOption("w"), line.hasOption("s"), line.hasOption("c")};
             int proper_option_count = 0;
             for (boolean proper_option : proper_options) {
                 if (proper_option) {
@@ -70,6 +73,9 @@ public class Main {
                 if(r != 0) {
                     System.exit(r);
                 }
+            } else if (line.hasOption("c") && line.hasOption("host")) {
+                // Run the converter
+                Converter.run(line.getOptionValue('c'), line.getOptionValue("host"));
             }
         } catch (ParseException exp) {
             System.err.println("Parsing failed.  Reason: " + exp.getMessage());
@@ -80,7 +86,7 @@ public class Main {
 
     private static void print_help() {
         String header = "MapCore application. CMPUT 402 Winter 2016 Project.\n" +
-                "Must run as either importer, simulator, or webapi.\n\n";
+                "Must run as either importer, simulator, webapi or converter.\n\n";
         String footer = "\nPlease report issues at\nhttps://github.com/cmput402w2016/CMPUT402W16T1/issues";
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("MapCore", header, options, footer, true);
@@ -89,7 +95,7 @@ public class Main {
 
     /**
      * We were having issues with heap usage going over on many runs, so we added this for convenience. If you're
-     * running in to heap errors as well, adjust the hadoop settings for heap memory allocation.
+     * running in toNode heap errors as well, adjust the hadoop settings for heap memory allocation.
      */
     public static void print_heap_usage() {
         int mb = 1024 * 1024;

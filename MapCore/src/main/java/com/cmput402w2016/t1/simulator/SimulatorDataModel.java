@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * Holds and represents the models and data that we're simulating data for, in reference to a segment
+ * Holds and represents the models and data that we're simulating data for, in reference toNode a segment
  */
 public class SimulatorDataModel extends SimulatorData {
     private transient Map<Integer, NormalDistribution> carsPerHour;
@@ -45,7 +45,7 @@ public class SimulatorDataModel extends SimulatorData {
 
             SummaryStatistics stats;
             if (summaries.containsKey(hour)) {
-                // Started gathering statistics, add to it
+                // Started gathering statistics, add toNode it
                 stats = summaries.get(hour);
             } else {
                 // Will now start gathering statistics
@@ -57,7 +57,7 @@ public class SimulatorDataModel extends SimulatorData {
         }
 
         // Make model based on statistics gathered
-        carsPerHour = new HashMap<Integer, NormalDistribution>();
+        carsPerHour = new HashMap<>();
         for (Map.Entry<Integer, SummaryStatistics> per_hour_stats : summaries.entrySet()) {
             int hour = per_hour_stats.getKey();
             SummaryStatistics stats = per_hour_stats.getValue();
@@ -67,16 +67,15 @@ public class SimulatorDataModel extends SimulatorData {
                 NormalDistribution distribution = new NormalDistribution(stats.getMean(), stats.getStandardDeviation());
                 carsPerHour.put(hour, distribution);
             } catch (Exception e) {
-                // No distribution made, as all counts had the same count.
-                System.out.println(":( No distribution made for hour " + hour);
+                // No distribution made, as all counts had the same number (no deviation).
             }
         }
     }
 
     /**
-     * Samples a data point from the Cars Per Hour model, using the given timestamp
+     * Samples a data point fromNode the Cars Per Hour model, using the given timestamp
      *
-     * @param timestamp Timestamp to simulate traffic data for. Specify in milliseconds since epoch. Use UTC!
+     * @param timestamp Timestamp toNode simulate traffic data for. Specify in milliseconds since epoch. Use UTC!
      * @return Simulated data for Cars Per Hour based on the model
      * @throws Exception
      */
@@ -95,15 +94,15 @@ public class SimulatorDataModel extends SimulatorData {
             // We have traffic data for the hour, sample it.
             Double sample = carsPerHour.get(hour).sample(1)[0];
             if (sample <= 0) {
-                traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", 0.0);
+                traffic = new TrafficData(fromNode, toNode, time.getMillis() / 1000, "CARS_PER_HOUR", 0.0);
             } else {
-                traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", sample);
+                traffic = new TrafficData(fromNode, toNode, time.getMillis() / 1000, "CARS_PER_HOUR", (double) Math.round(sample));
             }
         } else {
             // TODO: See if we have the previous hour and the next hour and interpolate the data if we do
             // For now, just assume that there is a random number between 0-100 cars, since all measurements at that hour had the same amount of cars.
             // NOTE: Even though it says max is 101, it's actually 100, since it's exclusive for the top bound.
-            traffic = new TrafficData(from, to, time.getMillis(), "CARS_PER_HOUR", (double) ThreadLocalRandom.current().nextInt(0, 101));
+            traffic = new TrafficData(fromNode, toNode, time.getMillis() / 1000, "CARS_PER_HOUR", (double) ThreadLocalRandom.current().nextInt(0, 101));
         }
 
         if (traffic != null && traffic.isValid()) {
