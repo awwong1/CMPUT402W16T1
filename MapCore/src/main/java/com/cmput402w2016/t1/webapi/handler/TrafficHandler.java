@@ -9,12 +9,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import kafka.server.KafkaConfig;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 public class TrafficHandler implements HttpHandler {
     public TrafficHandler() {
@@ -92,8 +97,12 @@ public class TrafficHandler implements HttpHandler {
 
                 // This takes the the from: and to: keys and nests the location within, not matching our api
                 // Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
-                Helper.requestResponse(httpExchange, 201, trafficData.to_serialized_json());
+                String serialized_json = trafficData.to_serialized_json();
+                Helper.requestResponse(httpExchange, 201, serialized_json);
                 httpExchange.close();
+
+                // Send to Kafka
+                send_to_kafka(serialized_json);
                 return;
             } else if (requestMethod.equalsIgnoreCase("GET")) {
                 // TODO implement GET
@@ -109,5 +118,19 @@ public class TrafficHandler implements HttpHandler {
             Helper.malformedRequestResponse(httpExchange, 400, e.getMessage());
             httpExchange.close();
         }
+    }
+
+    private void send_to_kafka(String serialized_json) {
+        // CMPUT 402 Team 4 Integration
+        Properties props = new Properties();
+        props.put("metadata.broker.list", "broker1:9092,broker2:9092");
+        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("partitioner.class", "example.producer.SimplePartitioner");
+        props.put("request.required.acks", "1");
+
+        KafkaProducer<String, String> kp = new KafkaProducer<>(props);
+
+        ProducerRecord<String, String> pr = new ProducerRecord<>("traffic", "data", serialized_json);
+        kp.send(pr);
     }
 }
