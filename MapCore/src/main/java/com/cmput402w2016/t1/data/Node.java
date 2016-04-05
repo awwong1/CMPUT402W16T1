@@ -16,15 +16,50 @@ import java.util.Map;
 
 public class Node {
     // OSM ID of the Node
-    private long id = Long.MIN_VALUE;
+    private long osmId = Long.MIN_VALUE;
     // Where the node is (lat/lon/geohash)
     private Location location = new Location(Double.MIN_VALUE, Double.MIN_VALUE);
+
     // The mapping of all the node tags defined in OSM
     private Map<String, String> tags = new HashMap<>();
 
     public Node() {
     }
 
+    public Node(String geohash) {
+        this.location = new Location(geohash);
+    }
+
+    public Node(Double lat, Double lon) {
+        this.location = new Location(lat, lon);
+    }
+
+    public Node(Location from) {
+        this.location = from;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (osmId != node.osmId) return false;
+        if (!location.equals(node.location)) return false;
+        return tags.equals(node.tags);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return location.hashCode();
+    }
+
+    /**
+     * @param geohash
+     * @param serialized_tags
+     */
     public Node(String geohash, String serialized_tags) {
         this.location = new Location(geohash);
         JsonParser jsonParser = new JsonParser();
@@ -34,19 +69,24 @@ public class Node {
             String key = entry.getKey();
             JsonElement val = entry.getValue();
             if (key.equals("id")) {
-                this.id = val.getAsLong();
+                this.osmId = val.getAsLong();
             } else {
                 this.tags.put(key, val.toString());
             }
         }
     }
 
-    public void setId(String id) {
-        this.id = Long.parseLong(id);
+    public Node(String geohash, Map<String, String> tags) {
+        this.location = new Location(geohash);
+        this.tags.putAll(tags);
     }
 
-    public long getId() {
-        return this.id;
+    public void setOsmId(String osmId) {
+        this.osmId = Long.parseLong(osmId);
+    }
+
+    public long getOsmId() {
+        return this.osmId;
     }
 
     public void setLat(String lat) {
@@ -66,12 +106,14 @@ public class Node {
     }
 
     public boolean isComplete() {
-        return location.isValid() && id != Long.MIN_VALUE;
+        return location.isValid() && osmId != Long.MIN_VALUE;
     }
 
-    public String computeGeohash() {
+    public String getGeohash() {
         return location.getGeohash();
     }
+
+    public Location getLocation() { return location; }
 
     public void addTag(String key, String value) {
         tags.put(key, value);
@@ -79,7 +121,7 @@ public class Node {
 
     public String getTagsWithIDAsSerializedJSON() {
         Map<String, String> m_tags = new HashMap<>(this.tags);
-        m_tags.put("id", String.valueOf(this.getId()));
+        m_tags.put("id", String.valueOf(this.getOsmId()));
         Gson gson = new Gson();
         return gson.toJson(m_tags);
     }
@@ -92,10 +134,10 @@ public class Node {
      */
     public String toSerializedJson() {
         JsonObject json = new JsonObject();
-        json.addProperty("geohash", this.computeGeohash());
+        json.addProperty("geohash", this.getGeohash());
         json.addProperty("lat", this.getLat());
         json.addProperty("lon", this.getLon());
-        json.addProperty("osm_id", this.getId());
+        json.addProperty("osm_id", this.getOsmId());
         JsonObject tags = new JsonObject();
         for (Map.Entry<String, String> e : this.tags.entrySet()) {
             String key = e.getKey();
@@ -114,7 +156,7 @@ public class Node {
      * @return String geohash representing the closet neighbor to the current node. Null if no neighbors.
      */
     public String getClosestNeighborGeohash(Table segment_table, Location actual) {
-        String[] neighbors = Segment.getNeighborGeohashesAsGeohashArray(this.computeGeohash(), segment_table);
+        String[] neighbors = Segment.getNeighborGeohashesAsGeohashArray(this.getGeohash(), segment_table);
         String closest_neighbor = null;
         if (neighbors != null) {
             double distance = Double.MAX_VALUE;
@@ -209,5 +251,9 @@ public class Node {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean isValid() {
+        return location.isValid();
     }
 }

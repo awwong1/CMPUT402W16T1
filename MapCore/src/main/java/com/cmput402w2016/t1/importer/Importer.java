@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Importer {
     // Values for the HBase Column Families and Keys
@@ -64,7 +65,7 @@ public class Importer {
                             String s = xmlStreamReader.getAttributeLocalName(i);
                             switch (s) {
                                 case "id":
-                                    node.setId(value);
+                                    node.setOsmId(value);
                                     break;
                                 case "lat":
                                     node.setLat(value);
@@ -123,7 +124,7 @@ public class Importer {
                             if (node != null) {
                                 // This is a node tag
                                 node.addTag(key, value);
-                                System.out.println("Added Node Tag " + key + ": " + value + "for " + node.getId());
+                                System.out.println("Added Node Tag " + key + ": " + value + "for " + node.getOsmId());
                             } else if (way != null) {
                                 // This is a way tag
                                 way.addTag(key, value);
@@ -142,8 +143,8 @@ public class Importer {
             } else if (xmlStreamReader.isEndElement()) {
                 String s = xmlStreamReader.getLocalName();
                 if (s.equals("node") && node != null) {
-                    nodes.put(node.getId(), node);
-                    System.out.print("\rAdded Node " + String.valueOf(node.getId()));
+                    nodes.put(node.getOsmId(), node);
+                    System.out.print("\rAdded Node " + String.valueOf(node.getOsmId()));
                     node = null;
                 } else if (s.equals("way") && way != null) {
                     ways.add(way);
@@ -179,9 +180,9 @@ public class Importer {
         int counter = 0;
         int batch = 500;
         List<Put> puts = new ArrayList<>();
-        for (HashMap.Entry<Long, Node> pair : nodes.entrySet()) {
+        for (Map.Entry<Long, Node> pair : nodes.entrySet()) {
             Node node = pair.getValue();
-            Put p = new Put(Bytes.toBytes(node.computeGeohash()));
+            Put p = new Put(Bytes.toBytes(node.getGeohash()));
             p.addColumn(DATA, TAGS, Bytes.toBytes(node.getTagsWithIDAsSerializedJSON()));
             puts.add(p);
             counter += 1;
@@ -229,12 +230,12 @@ public class Importer {
                     previousNode = node;
                     continue;
                 }
-                Put p = new Put(Bytes.toBytes(previousNode.computeGeohash()));
-                p.addColumn(NODE, Bytes.toBytes(node.computeGeohash()),
+                Put p = new Put(Bytes.toBytes(previousNode.getGeohash()));
+                p.addColumn(NODE, Bytes.toBytes(node.getGeohash()),
                         Bytes.toBytes(String.valueOf(way.getTagsAsSerializedJSON())));
                 puts.add(p);
-                p = new Put(Bytes.toBytes(node.computeGeohash()));
-                p.addColumn(NODE, Bytes.toBytes(previousNode.computeGeohash()),
+                p = new Put(Bytes.toBytes(node.getGeohash()));
+                p.addColumn(NODE, Bytes.toBytes(previousNode.getGeohash()),
                         Bytes.toBytes(String.valueOf(way.getTagsAsSerializedJSON())));
                 puts.add(p);
             }

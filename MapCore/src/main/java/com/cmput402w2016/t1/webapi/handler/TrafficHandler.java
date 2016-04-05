@@ -31,8 +31,8 @@ public class TrafficHandler implements HttpHandler {
      */
     private String read_post_body(HttpExchange httpExchange) {
         String rawContent = "";
-        InputStreamReader instream = new InputStreamReader(httpExchange.getRequestBody());
-        BufferedReader buffer = new BufferedReader(instream);
+        InputStreamReader inStream = new InputStreamReader(httpExchange.getRequestBody());
+        BufferedReader buffer = new BufferedReader(inStream);
         String line;
         try {
             while ((line = buffer.readLine()) != null) {
@@ -75,11 +75,11 @@ public class TrafficHandler implements HttpHandler {
                 }
 
                 // Get the source node.
-                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom(), WebApi.get_node_table());
-                String from_hash = from_node.computeGeohash();
+                Node from_node = Node.getClosestNodeFromLocation(trafficData.getFrom().getLocation(), WebApi.get_node_table());
+                String from_hash = from_node.getGeohash();
 
-                // Get the closet neighbor geohash.
-                String to_hash = from_node.getClosestNeighborGeohash(WebApi.get_segment_table(), trafficData.getTo());
+                // Get the closet neighbor geohash
+                String to_hash = from_node.getClosestNeighborGeohash(WebApi.get_segment_table(), trafficData.getTo().getLocation());
 
                 String long_val = String.valueOf(trafficData.getTimestamp());
                 String key_val = trafficData.getKey();

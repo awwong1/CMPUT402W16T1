@@ -34,7 +34,7 @@ public class Segment {
         }
         return null;
     }
-    
+
     public static String[] getNeighborGeohashesAsGeohashArray(String start_node_geohash, Table segment_table) {
         Map<String, String> hmap = getNeighborGeohashesAsStringMap(start_node_geohash, segment_table);
         if (hmap == null) {

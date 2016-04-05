@@ -6,10 +6,10 @@ import com.github.davidmoten.geo.LatLong;
 /**
  * Location should not be called directly and should only be referenced within the Node class
  */
-class Location {
+public class Location {
     private String geohash;
 
-    Location(Double lat, Double lon) {
+    public Location(Double lat, Double lon) {
         this.geohash = GeoHash.encodeHash(lat, lon);
     }
 
@@ -17,22 +17,22 @@ class Location {
         this(Double.parseDouble(lat), Double.parseDouble(lon));
     }
 
-    Location(String geohash) {
+    public Location(String geohash) {
         GeoHash.decodeHash(geohash);
         this.geohash = geohash;
     }
 
-    Double getLat() {
+    public Double getLat() {
         return GeoHash.decodeHash(this.geohash).getLat();
-    }
-
-    Double getLon() {
-        return GeoHash.decodeHash(this.geohash).getLon();
     }
 
     void setLat(Double lat) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         this.geohash = GeoHash.encodeHash(lat, ll.getLon());
+    }
+
+    public Double getLon() {
+        return GeoHash.decodeHash(this.geohash).getLon();
     }
 
     void setLon(Double lon) {
@@ -59,7 +59,7 @@ class Location {
      *
      * @return String geohash value
      */
-    String getGeohash() {
+    public String getGeohash() {
         return this.geohash;
     }
 
@@ -90,7 +90,7 @@ class Location {
      * @param to Location to point
      * @return double, distance between two points in meters
      */
-    double distance(Location to) {
+    public double distance(Location to) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         LatLong tll = GeoHash.decodeHash(to.geohash);
         double radius = 6378137;   // approximate Earth radius, *in meters*
@@ -101,5 +101,23 @@ class Location {
                         Math.cos(ll.getLat()) * Math.cos(tll.getLat()) *
                                 Math.pow(Math.sin(deltaLon / 2), 2)));
         return radius * angle;
+    }
+
+    /**
+     * Adapted from http://stackoverflow.com/questions/9457988/bearing-from-one-coordinate-to-another
+     * Returns bearing in reference from this point to the given point
+     *
+     * @param to Second location
+     * @return
+     */
+    public double bearingTo(Location to) {
+        double longitude1 = this.getLon();
+        double longitude2 = to.getLon();
+        double latitude1 = Math.toRadians(this.getLat());
+        double latitude2 = Math.toRadians(to.getLat());
+        double longDiff = Math.toRadians(longitude2 - longitude1);
+        double y = Math.sin(longDiff) * Math.cos(latitude2);
+        double x = Math.cos(latitude1) * Math.sin(latitude2) - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longDiff);
+        return Math.atan2(y, x);
     }
 }
