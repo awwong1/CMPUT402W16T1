@@ -11,10 +11,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 public class TrafficHandler implements HttpHandler {
     public TrafficHandler() {
@@ -92,7 +95,11 @@ public class TrafficHandler implements HttpHandler {
 
                 // This takes the the from: and to: keys and nests the location within, not matching our api
                 // Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
-                Helper.requestResponse(httpExchange, 201, trafficData.to_serialized_json());
+                String serialized_json = trafficData.to_serialized_json();
+                // Send to Kafka
+                send_to_kafka(serialized_json);
+
+                Helper.requestResponse(httpExchange, 201, serialized_json);
                 httpExchange.close();
                 return;
             } else if (requestMethod.equalsIgnoreCase("GET")) {
@@ -109,5 +116,25 @@ public class TrafficHandler implements HttpHandler {
             Helper.malformedRequestResponse(httpExchange, 400, e.getMessage());
             httpExchange.close();
         }
+    }
+
+    private void send_to_kafka(String serialized_json) {
+        KafkaProducer<String, String> producer;
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", "localhost:9092");
+        properties.put("acks", "all");
+        properties.put("retries", "0");
+        properties.put("retries", "0");
+        properties.put("batch.size", "16384");
+        properties.put("auto.commit.interval.ms", "1000");
+        properties.put("linger.ms", "0");
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("block.on.buffer.full", "true");
+        producer = new KafkaProducer<>(properties);
+        ProducerRecord<String, String> pr = new ProducerRecord<>("traffic", "data", serialized_json);
+        producer.send(pr);
+        producer.close();
+
     }
 }
