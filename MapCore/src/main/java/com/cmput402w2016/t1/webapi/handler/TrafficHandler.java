@@ -4,7 +4,6 @@ import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.TrafficData;
 import com.cmput402w2016.t1.webapi.Helper;
 import com.cmput402w2016.t1.webapi.WebApi;
-import com.google.common.io.Resources;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,7 +16,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
