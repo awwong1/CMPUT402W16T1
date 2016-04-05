@@ -4,20 +4,20 @@ import com.cmput402w2016.t1.data.Node;
 import com.cmput402w2016.t1.data.TrafficData;
 import com.cmput402w2016.t1.webapi.Helper;
 import com.cmput402w2016.t1.webapi.WebApi;
+import com.google.common.io.Resources;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import kafka.server.KafkaConfig;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
@@ -98,11 +98,11 @@ public class TrafficHandler implements HttpHandler {
                 // This takes the the from: and to: keys and nests the location within, not matching our api
                 // Helper.requestResponse(httpExchange, 201, new Gson().toJson(trafficData, TrafficData.class));
                 String serialized_json = trafficData.to_serialized_json();
-                Helper.requestResponse(httpExchange, 201, serialized_json);
-                httpExchange.close();
-
                 // Send to Kafka
                 send_to_kafka(serialized_json);
+
+                Helper.requestResponse(httpExchange, 201, serialized_json);
+                httpExchange.close();
                 return;
             } else if (requestMethod.equalsIgnoreCase("GET")) {
                 // TODO implement GET
@@ -121,16 +121,22 @@ public class TrafficHandler implements HttpHandler {
     }
 
     private void send_to_kafka(String serialized_json) {
-        // CMPUT 402 Team 4 Integration
-        Properties props = new Properties();
-        props.put("metadata.broker.list", "broker1:9092,broker2:9092");
-        props.put("serializer.class", "kafka.serializer.StringEncoder");
-        props.put("partitioner.class", "example.producer.SimplePartitioner");
-        props.put("request.required.acks", "1");
-
-        KafkaProducer<String, String> kp = new KafkaProducer<>(props);
-
+        KafkaProducer<String, String> producer;
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", "localhost:9092");
+        properties.put("acks", "all");
+        properties.put("retries", "0");
+        properties.put("retries", "0");
+        properties.put("batch.size", "16384");
+        properties.put("auto.commit.interval.ms", "1000");
+        properties.put("linger.ms", "0");
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("block.on.buffer.full", "true");
+        producer = new KafkaProducer<>(properties);
         ProducerRecord<String, String> pr = new ProducerRecord<>("traffic", "data", serialized_json);
-        kp.send(pr);
+        producer.send(pr);
+        producer.close();
+
     }
 }
