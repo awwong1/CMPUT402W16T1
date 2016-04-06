@@ -54,8 +54,16 @@ public class TrafficData {
         return from;
     }
 
+    public void setFrom(Node node) {
+        this.from = node;
+    }
+
     public Node getTo() {
         return to;
+    }
+
+    public void setTo(Node node) {
+        this.to = node;
     }
 
     public long getTimestamp() {
