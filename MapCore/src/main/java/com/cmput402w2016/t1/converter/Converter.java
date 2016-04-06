@@ -18,16 +18,16 @@ import java.util.Map;
  * This class takes the data.csv that was prepared, and makes JSON files that we can run through the simulator
  * Use this format: latitude, longitude, direction, ts, count
  * Data from this source:
- *   https://www.dropbox.com/s/cjzxwsr6z73wxab/EdmontonTrafficDB%20%281%29.7z?dl=0
+ * https://www.dropbox.com/s/cjzxwsr6z73wxab/EdmontonTrafficDB%20%281%29.7z?dl=0
  * Created by this query:
- *   SELECT S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time) AS ts, T.count FROM Sites S INNER JOIN TrafficEvents T ON S.site_id = T.site_id WHERE S.latitude IS NOT NULL ORDER BY S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time)
+ * SELECT S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time) AS ts, T.count FROM Sites S INNER JOIN TrafficEvents T ON S.site_id = T.site_id WHERE S.latitude IS NOT NULL ORDER BY S.latitude, S.longitude, T.direction, DATEDIFF("s", '1 Jan 1970', T.event_date_time)
  */
 public class Converter {
     static DatabaseController controller;
 
     /**
      * @param csvFile CSV file containing data pulled from Edmonton Traffic Data
-     * @param host Location of REST server (include http://)
+     * @param host    Location of REST server (include http://)
      */
     public static void run(String csvFile, String host) {
         controller = new RestController(host);
@@ -51,8 +51,8 @@ public class Converter {
                 long timestamp = Long.valueOf(nextLine[3]);
                 int count = Integer.valueOf(nextLine[4]);
 
-                if(latitude != last_lat || longitude != last_lon || !direction.equals(last_direction)) {
-                    if(currentData != null) {
+                if (latitude != last_lat || longitude != last_lon || !direction.equals(last_direction)) {
+                    if (currentData != null) {
                         // Save constructed data
                         String data = gson.toJson(currentData);
                         String filename = String.format("data/simulator/%s_%s", currentData.fromNode.getGeohash(), currentData.toNode.getGeohash());
@@ -70,12 +70,12 @@ public class Converter {
                         Location to = new Location(segmentNode.getKey());
                         Map<String, String> toData = segmentNode.getValue();
 
-                        if(bestTo == null) {
+                        if (bestTo == null) {
                             bestTo = to;
                             continue;
                         }
 
-                        if(compareBestSegment(direction, bestTo, from, to)) {
+                        if (compareBestSegment(direction, bestTo, from, to)) {
                             // New direction is better
                             bestTo = to;
                         }
@@ -89,7 +89,7 @@ public class Converter {
                     currentData = new SimulatorData(new Node(from), new Node(bestTo), "https://www.dropbox.com/s/cjzxwsr6z73wxab/EdmontonTrafficDB%20%281%29.7z?dl=0");
                 }
 
-                if(currentData == null) {
+                if (currentData == null) {
                     throw new Exception("Didn't construct SimulatorData, error.");
                 } else {
                     // Add the current data that we're on
@@ -111,21 +111,21 @@ public class Converter {
      * Helps compare the segment nodes to determine the best match to the data
      *
      * @param direction Where the location is heading {EBD, WBD, SBD, NBD}
-     * @param best Current best location matching
-     * @param from From location to check where traffic is originating
-     * @param to To location to check where traffic is heading.
+     * @param best      Current best location matching
+     * @param from      From location to check where traffic is originating
+     * @param to        To location to check where traffic is heading.
      * @return True if the to node is a better match than the previous best.
      */
     public static boolean compareBestSegment(String direction, Location best, Location from, Location to) {
         double bearing_best = from.bearingTo(best);
         double bearing_to = from.bearingTo(to);
-        switch(direction) {
+        switch (direction) {
             case "NBD":
                 // Closest to 0
                 return compareAngles(0.0, bearing_best, bearing_to);
             case "EBD":
                 // Closest to 90
-                return compareAngles(Math.PI/2, bearing_best, bearing_to);
+                return compareAngles(Math.PI / 2, bearing_best, bearing_to);
             case "SBD":
                 // Closest to 180
                 return compareAngles(Math.PI, bearing_best, bearing_to);
@@ -138,6 +138,14 @@ public class Converter {
         }
     }
 
+    /**
+     * Compare the angles between two doubles
+     *
+     * @param ideal Ideal angle that the angle should match to
+     * @param best  The current closest angle that matches
+     * @param to    The angle to check against
+     * @return Boolean, true if to is better than best, false otherwise
+     */
     private static boolean compareAngles(Double ideal, Double best, Double to) {
         double bestDif = Math.abs(Math.atan2(Math.sin(ideal - best), Math.cos(ideal - best)));
         double toDif = Math.abs(Math.atan2(Math.sin(ideal - to), Math.cos(ideal - to)));
