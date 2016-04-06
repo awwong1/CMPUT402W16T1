@@ -122,7 +122,29 @@ public class TrafficData {
         return new TrafficData(from, to, timestamp, key, value);
     }
 
-    public String to_serialized_json() {
+    /**
+     * Take the current traffic object and return a string json representation of the object
+     *
+     * @return String, serialized JSON for traffic object
+     * @throws Exception one of the required fields is null
+     */
+    public String to_serialized_json() throws Exception {
+        if (from == null) {
+            throw new Exception("Traffic 'from' does not match known node.");
+        }
+        if (to == null) {
+            throw new Exception("Traffic 'to' does not match known node.");
+        }
+        if (timestamp == null) {
+            throw new Exception("Traffic 'timestamp' does not match any value.");
+        }
+        if (key == null) {
+            throw new Exception("Traffic 'key' does not match known string.");
+        }
+        if (value == null) {
+            throw new Exception("Traffic 'value' does not match known string.");
+        }
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("from", this.from.getGeohash());
         jsonObject.addProperty("to", this.to.getGeohash());

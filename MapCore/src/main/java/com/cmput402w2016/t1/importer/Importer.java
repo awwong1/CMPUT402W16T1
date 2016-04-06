@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class containing all the logic necessary to import an OSM xml file to HBase
+ */
 public class Importer {
     // Values for the HBase Column Families and Keys
     private static final byte[] DATA = Bytes.toBytes("data");

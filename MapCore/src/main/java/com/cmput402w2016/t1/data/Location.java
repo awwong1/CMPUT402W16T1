@@ -9,37 +9,80 @@ import com.github.davidmoten.geo.LatLong;
 public class Location {
     private String geohash;
 
+    /**
+     * Construct a location with a given lat and lon
+     *
+     * @param lat Double representation of the lat
+     * @param lon Double representation of the lon
+     */
     public Location(Double lat, Double lon) {
         this.geohash = GeoHash.encodeHash(lat, lon);
     }
 
+    /**
+     * Construct a location with a given lat and lon
+     *
+     * @param lat String representation of the lat
+     * @param lon String representation of the lon
+     */
     Location(String lat, String lon) {
         this(Double.parseDouble(lat), Double.parseDouble(lon));
     }
 
+    /**
+     * Construct a location with a given geohash
+     *
+     * @param geohash String representation of the geohash
+     */
     public Location(String geohash) {
         GeoHash.decodeHash(geohash);
         this.geohash = geohash;
     }
 
+    /**
+     * Get the double value of the location's latitude
+     *
+     * @return Double value of the latitude
+     */
     public Double getLat() {
         return GeoHash.decodeHash(this.geohash).getLat();
     }
 
+    /**
+     * Set the latitude value of this location
+     *
+     * @param lat Double value of the latitude
+     */
     void setLat(Double lat) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         this.geohash = GeoHash.encodeHash(lat, ll.getLon());
     }
 
+    /**
+     * Get the double value of the location's longitude
+     *
+     * @return Double value of the longitude
+     */
     public Double getLon() {
         return GeoHash.decodeHash(this.geohash).getLon();
     }
 
+    /**
+     * Set the longitude value of this location
+     *
+     * @param lon Double value of the longitude
+     */
     void setLon(Double lon) {
         LatLong ll = GeoHash.decodeHash(this.geohash);
         this.geohash = GeoHash.encodeHash(ll.getLat(), lon);
     }
 
+    /**
+     * Custom equality method for this location
+     *
+     * @param object Other object to compare to
+     * @return Boolean, true if equals, false otherwise
+     */
     @Override
     public boolean equals(Object object) {
         if (object == this) return true;
@@ -49,6 +92,11 @@ public class Location {
         return true;
     }
 
+    /**
+     * Custom hash code method for this location
+     *
+     * @return String hashcode of the geohash
+     */
     @Override
     public int hashCode() {
         return this.geohash.hashCode();
@@ -78,6 +126,11 @@ public class Location {
         return false;
     }
 
+    /**
+     * Return this object's geohash as the string representation of the obj
+     *
+     * @return String, geohash
+     */
     @Override
     public String toString() {
         return this.geohash;
@@ -108,7 +161,7 @@ public class Location {
      * Returns bearing in reference from this point to the given point
      *
      * @param to Second location
-     * @return
+     * @return Double, bearing to a given location
      */
     public double bearingTo(Location to) {
         double longitude1 = this.getLon();

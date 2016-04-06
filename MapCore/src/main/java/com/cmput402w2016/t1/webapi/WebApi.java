@@ -12,12 +12,20 @@ import org.apache.hadoop.hbase.client.Table;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+/**
+ * Class for handling the web api interface. Will start up the http server and serve requests
+ */
 public class WebApi {
 
     private static Table node_table = null;
     private static Table segment_table = null;
     private static Table traffic_table = null;
 
+    /**
+     * Start up all the required HBase tables and the http web server
+     *
+     * @param raw_port port number as a string to serve underneath
+     */
     public static void start_web_api(String raw_port) {
         if (!StringUtils.isNumeric(raw_port)) {
             System.err.println(raw_port + " is not a valid port integer.");
@@ -48,14 +56,29 @@ public class WebApi {
         }
     }
 
+    /**
+     * Get the initialized static node table singleton
+     *
+     * @return HBase table of nodes
+     */
     public static Table get_node_table() {
         return WebApi.node_table;
     }
 
+    /**
+     * Get the initialized static segment table singleton
+     *
+     * @return HBase table of segments
+     */
     public static Table get_segment_table() {
         return WebApi.segment_table;
     }
 
+    /**
+     * Get the initialized static traffic table singleton
+     *
+     * @return HBase table of traffic
+     */
     public static Table get_traffic_table() {
         return WebApi.traffic_table;
     }

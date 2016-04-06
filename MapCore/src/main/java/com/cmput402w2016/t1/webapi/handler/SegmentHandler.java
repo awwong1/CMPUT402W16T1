@@ -6,12 +6,19 @@ import com.cmput402w2016.t1.webapi.WebApi;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Handler for the /segment webservice route
+ */
 public class SegmentHandler implements HttpHandler {
+    /**
+     * Handle the web request to the server
+     *
+     * @param httpExchange HttpExchange object containing the request
+     */
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void handle(HttpExchange httpExchange) {
         // Get & parse query
         try {
             String requestMethod = httpExchange.getRequestMethod();

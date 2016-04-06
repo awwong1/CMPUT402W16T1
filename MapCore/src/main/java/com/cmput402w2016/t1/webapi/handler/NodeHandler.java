@@ -6,21 +6,31 @@ import com.cmput402w2016.t1.webapi.WebApi;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Handler for the /node webservice route
+ */
 public class NodeHandler implements HttpHandler {
-    public NodeHandler() {
-    }
-
+    /**
+     * Set the current node in the httpExchange object, return 200 OK
+     *
+     * @param node         Node object to set in the response
+     * @param httpExchange HttpExchange object containing the response
+     */
     private void setNode(Node node, HttpExchange httpExchange) {
         String serialized_json = node.toSerializedJson();
         Helper.requestResponse(httpExchange, 200, serialized_json);
         httpExchange.close();
     }
 
+    /**
+     * Handle the web request to the server
+     *
+     * @param httpExchange HttpExchange object containing the request
+     */
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void handle(HttpExchange httpExchange) {
         // Get & parse query
         try {
             String requestMethod = httpExchange.getRequestMethod();

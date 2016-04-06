@@ -5,14 +5,21 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Handler for the / webservice route
+ */
 public class RootHandler implements HttpHandler {
 
+    /**
+     * Handle the web request to the server
+     *
+     * @param httpExchange HttpExchange object containing the request
+     */
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void handle(HttpExchange httpExchange) {
         Map<String, String> message = new HashMap<>();
         message.put("message",
                 "Server is up. API reference at " +
