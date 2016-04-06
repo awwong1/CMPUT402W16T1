@@ -25,6 +25,10 @@ import java.util.Map;
 public class Converter {
     static DatabaseController controller;
 
+    /**
+     * @param csvFile CSV file containing data pulled from Edmonton Traffic Data
+     * @param host Location of REST server (include http://)
+     */
     public static void run(String csvFile, String host) {
         controller = new RestController(host);
         Gson gson = new Gson();
@@ -89,7 +93,7 @@ public class Converter {
                     throw new Exception("Didn't construct SimulatorData, error.");
                 } else {
                     // Add the current data that we're on
-                    currentData.addData(timestamp, count);
+                    currentData.addHourlyCountData(timestamp, count);
                 }
                 // nextLine[] is an array of values from the line
                 //System.out.println(nextLine[0] + nextLine[1] + "etc...");
@@ -106,11 +110,11 @@ public class Converter {
     /**
      * Helps compare the segment nodes to determine the best match to the data
      *
-     * @param direction
-     * @param best
-     * @param from
-     * @param to
-     * @return True if the to node is a better match than the previous.
+     * @param direction Where the location is heading {EBD, WBD, SBD, NBD}
+     * @param best Current best location matching
+     * @param from From location to check where traffic is originating
+     * @param to To location to check where traffic is heading.
+     * @return True if the to node is a better match than the previous best.
      */
     public static boolean compareBestSegment(String direction, Location best, Location from, Location to) {
         double bearing_best = from.bearingTo(best);

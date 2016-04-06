@@ -69,8 +69,10 @@ public class Main {
                 WebApi.start_web_api(raw_port);
             } else if (line.hasOption("s")) {
                 // Run the simulator
-                r  = Simulator.run(line.getOptionValues('s'));
+                r  = Simulator.run(line.getOptionValue('s'));
                 if(r != 0) {
+                    // Kiewan complains about this, but I disagree with Kiewan.
+                    // If the program failed, I should be able to return a non-0 exit code.
                     System.exit(r);
                 }
             } else if (line.hasOption("c")) {

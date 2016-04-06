@@ -9,14 +9,21 @@ import java.util.Map;
  * Used to store the data that will end up being dumped to a json file and run in the simulator
  */
 public class SimulatorData {
-    // Holds traffic counts of data, timestamp -> count
-    protected Map<String, Integer> traffic;
+    /**
+     * Holds traffic counts of data, timestamp -> count
+     */
+    protected Map<String, Integer> hourlyTrafficCountData;
     protected String source;
     protected Map<String, String> from;
     protected transient Node fromNode;
     protected Map<String, String> to;
     protected transient Node toNode;
 
+    /**
+     * @param fromNode Source of traffic
+     * @param toNode Destination of traffic
+     * @param source Where the measured data came from
+     */
     public SimulatorData(Node fromNode, Node toNode, String source) {
         from = new HashMap<>();
         this.fromNode = fromNode;
@@ -29,9 +36,12 @@ public class SimulatorData {
         to.put("lon", toNode.getLon().toString());
 
         this.source = source;
-        traffic = new HashMap<>();
+        hourlyTrafficCountData = new HashMap<>();
     }
 
+    /**
+     * Used when converting with GSON, it will generate the Nodes based on the lat & lon.
+     */
     public void constructNodes() {
         if(from != null && fromNode == null) {
             fromNode = new Node(Double.valueOf(from.get("lat")), Double.valueOf(from.get("lon")));
@@ -41,7 +51,11 @@ public class SimulatorData {
         }
     }
 
-    public void addData(Long timestamp, int count) {
-        traffic.put(timestamp.toString(), count);
+    /**
+     * @param timestamp Timestamp that count was taken at
+     * @param count How many cars passed in the past hour
+     */
+    public void addHourlyCountData(Long timestamp, int count) {
+        hourlyTrafficCountData.put(timestamp.toString(), count);
     }
 }

@@ -11,9 +11,15 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 public  class Simulator {
-    public static int run(String... args) throws Exception {
+
+
+    /**
+     * @param hostURI URL for REST Server (include http://)
+     * @return integer representing exit value - 0 = success; >0 = failure
+     * @throws Exception
+     */
+    public static int run(String hostURI) throws Exception {
         // TODO: Sanity checks
-        String hostURI = args[0];
 
         Gson gson = new Gson();
         File folder = new File("data/simulator");

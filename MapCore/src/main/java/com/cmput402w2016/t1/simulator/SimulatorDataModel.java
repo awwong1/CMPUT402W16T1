@@ -34,7 +34,7 @@ public class SimulatorDataModel extends SimulatorData {
     public void generateCarsPerHourModel() {
         // Get statistical data for counts at each hour
         Map<Integer, SummaryStatistics> summaries = new HashMap<>();
-        for (Map.Entry<String, Integer> count : traffic.entrySet()) {
+        for (Map.Entry<String, Integer> count : hourlyTrafficCountData.entrySet()) {
             // Java stores times in milliseconds since epoch, hence the *1000.
             String key = count.getKey();
             long timestamp = Long.parseLong(key) * 1000;
@@ -63,12 +63,15 @@ public class SimulatorDataModel extends SimulatorData {
             SummaryStatistics stats = per_hour_stats.getValue();
 
             // Create distribution based on stats
+            NormalDistribution distribution;
             try {
-                NormalDistribution distribution = new NormalDistribution(stats.getMean(), stats.getStandardDeviation());
-                carsPerHour.put(hour, distribution);
+                 distribution = new NormalDistribution(stats.getMean(), stats.getStandardDeviation());
             } catch (Exception ignored) {
                 // No distribution made, as all counts had the same number (no deviation).
+                // We'll assume our counts are pretty close to historical values.
+                distribution = new NormalDistribution(stats.getMean(), 10/stats.getN());
             }
+            carsPerHour.put(hour, distribution);
         }
     }
 
