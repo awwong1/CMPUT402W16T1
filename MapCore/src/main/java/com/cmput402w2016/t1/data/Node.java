@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Java object representing a given OSM node
+ */
 public class Node {
     // OSM ID of the Node
     private long osmId = Long.MIN_VALUE;
@@ -23,21 +26,46 @@ public class Node {
     // The mapping of all the node tags defined in OSM
     private Map<String, String> tags = new HashMap<>();
 
+    /**
+     * Empty constructor
+     */
     public Node() {
     }
 
+    /**
+     * Construct the node with a geohash only
+     *
+     * @param geohash String geohash
+     */
     public Node(String geohash) {
         this.location = new Location(geohash);
     }
 
+    /**
+     * Construct the node with the lat lon only
+     *
+     * @param lat Double value of lat
+     * @param lon Double value of lon
+     */
     public Node(Double lat, Double lon) {
         this.location = new Location(lat, lon);
     }
 
-    public Node(Location from) {
-        this.location = from;
+    /**
+     * Construct the node with the location only
+     *
+     * @param loc Location object, value of loc
+     */
+    public Node(Location loc) {
+        this.location = loc;
     }
 
+    /**
+     * Custom equality for the Node object
+     *
+     * @param o Other object to compare to
+     * @return Boolean, true if equals, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -51,14 +79,21 @@ public class Node {
 
     }
 
+    /**
+     * Custom hash code for the node object
+     *
+     * @return String hash code value of the node's location
+     */
     @Override
     public int hashCode() {
         return location.hashCode();
     }
 
     /**
-     * @param geohash
-     * @param serialized_tags
+     * Constructor for the node with the full location and the serialized node tags
+     *
+     * @param geohash         Location of the current node
+     * @param serialized_tags String with a json object for all the node tags
      */
     public Node(String geohash, String serialized_tags) {
         this.location = new Location(geohash);
@@ -76,49 +111,113 @@ public class Node {
         }
     }
 
+    /**
+     * Constructor for the node with the full location and the serialized node tags
+     *
+     * @param geohash Location of the current node
+     * @param tags    Map of String:String containing all the node tags
+     */
     public Node(String geohash, Map<String, String> tags) {
         this.location = new Location(geohash);
         this.tags.putAll(tags);
     }
 
+    /**
+     * Set the OSM ID
+     *
+     * @param osmId String value of the OSM id
+     */
     public void setOsmId(String osmId) {
         this.osmId = Long.parseLong(osmId);
     }
 
+    /**
+     * Get the OSM ID
+     *
+     * @return long value of the OSM id
+     */
     public long getOsmId() {
         return this.osmId;
     }
 
+    /**
+     * Set the node's lat
+     *
+     * @param lat String value of the lat to set
+     */
     public void setLat(String lat) {
         this.location.setLat(Double.parseDouble(lat));
     }
 
+    /**
+     * Set the node's lon
+     *
+     * @param lon String value of the lon to set
+     */
     public void setLon(String lon) {
         this.location.setLon(Double.parseDouble(lon));
     }
 
+    /**
+     * Get the node's lat
+     *
+     * @return Double value of the node's lat
+     */
     public Double getLat() {
         return this.location.getLat();
     }
 
+    /**
+     * Get the node's lon
+     *
+     * @return Double value of the node's lon
+     */
     public Double getLon() {
         return this.location.getLon();
     }
 
+    /**
+     * Check if the node contains all the necessary values for operations
+     *
+     * @return True if all required fields are set, false otherwise
+     */
     public boolean isComplete() {
         return location.isValid() && osmId != Long.MIN_VALUE;
     }
 
+    /**
+     * Return the node's geohash
+     *
+     * @return String value of the node's geohash
+     */
     public String getGeohash() {
         return location.getGeohash();
     }
 
-    public Location getLocation() { return location; }
+    /**
+     * Return the node's location
+     *
+     * @return Location object of the node's location
+     */
+    public Location getLocation() {
+        return location;
+    }
 
+    /**
+     * Add a tag to the node's tags
+     *
+     * @param key   Key of the tag, String
+     * @param value Value of the tag, String
+     */
     public void addTag(String key, String value) {
         tags.put(key, value);
     }
 
+    /**
+     * Get all of the node's tags with the node id incorporated in the serialized json output
+     *
+     * @return String, serialized json output with node tags and ID
+     */
     public String getTagsWithIDAsSerializedJSON() {
         Map<String, String> m_tags = new HashMap<>(this.tags);
         m_tags.put("id", String.valueOf(this.getOsmId()));
@@ -253,6 +352,11 @@ public class Node {
         return null;
     }
 
+    /**
+     * Return the boolean if the location is valid
+     *
+     * @return Boolean, true if location is valid, false otherwise
+     */
     public boolean isValid() {
         return location.isValid();
     }
